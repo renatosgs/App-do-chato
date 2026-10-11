@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniChat Pro - Hub Integrado WhatsApp, Facebook & Instagram</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325D366'><path d='M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.08L2 22l5.05-1.33C8.5 21.53 10.2 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z'/></svg>">
+</head>
+<body class="theme-dark">
+  <div id="app" class="app-container">
+    
+    <!-- ============================================== -->
+    <!-- BARRA LATERAL PRINCIPAL                        -->
+    <!-- ============================================== -->
+    <aside class="sidebar-main">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" class="logo-icon" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.35 5L2 22l5.12-1.34C8.55 21.52 10.23 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
+          </svg>
+          <div class="logo-pulse"></div>
+        </div>
+        <div class="brand-info">
+          <h2>OmniChat<span>PRO</span></h2>
+          <span class="badge-partner">Meta Certified</span>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" data-tab="inbox" id="tab-btn-inbox">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </span>
+          <span class="nav-text">Conversas Unificadas</span>
+          <span class="nav-badge" id="total-unread-badge">3</span>
+        </button>
+
+        <button class="nav-btn" data-tab="workspace" id="tab-btn-workspace">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          </span>
+          <span class="nav-text">Apps Integrados</span>
+          <span class="nav-tag-pill">Web Hub</span>
+        </button>
+
+        <button class="nav-btn" data-tab="channels" id="tab-btn-channels">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </span>
+          <span class="nav-text">Canais & Conexões</span>
+          <span class="nav-status-dot online"></span>
+        </button>
+
+        <button class="nav-btn" data-tab="automations" id="tab-btn-automations">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </span>
+          <span class="nav-text">Automações & Bot</span>
+        </button>
+
+        <button class="nav-btn" data-tab="analytics" id="tab-btn-analytics">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </span>
+          <span class="nav-text">Métricas & Relatórios</span>
+        </button>
+      </nav>
+
+      <!-- INDICADOR DE STATUS DOS CANAIS -->
+      <div class="sidebar-channels-summary">
+        <div class="summary-title">Canais Ativos</div>
+        <div class="channel-status-pill ch-wa" title="WhatsApp Business Conectado">
+          <span class="pill-dot"></span> WhatsApp
+        </div>
+        <div class="channel-status-pill ch-ig" title="Instagram Direct Conectado">
+          <span class="pill-dot"></span> Instagram
+        </div>
+        <div class="channel-status-pill ch-fb" title="Facebook Messenger Conectado">
+          <span class="pill-dot"></span> Facebook
+        </div>
+      </div>
+
+      <!-- RODAPÉ DA SIDEBAR -->
+      <div class="sidebar-footer">
+        <button id="theme-toggle" class="footer-action-btn" title="Alternar Tema Claro / Escuro">
+          <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button id="sound-toggle" class="footer-action-btn active" title="Notificações Sonoras">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </button>
+        <div class="user-badge" title="Atendente Conectado">
+          <div class="user-avatar-mini">OP</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ============================================== -->
+    <!-- CONTEÚDO PRINCIPAL                             -->
+    <!-- ============================================== -->
+    <main class="content-main">
+      
+      <!-- ============================================== -->
+      <!-- ABA 1: CAIXA DE ENTRADA UNIFICADA (INBOX)      -->
+      <!-- ============================================== -->
+      <section id="section-inbox" class="tab-section active">
+        <div class="inbox-container">
+          
+          <!-- COLUNA 1: LISTA DE CONVERSAS -->
+          <div class="conversations-column">
+            <div class="column-header">
+              <div class="header-top">
+                <h3>Caixa Unificada</h3>
+                <button class="btn-primary-small" id="btn-simulate-modal" title="Simular nova mensagem recebida">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span>Simular Mensagem</span>
+                </button>
+              </div>
+
+              <!-- BARRA DE BUSCA -->
+              <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="search-input" placeholder="Buscar conversas, nomes ou mensagens...">
+              </div>
+
+              <!-- FILTROS DE CANAL -->
+              <div class="channel-filters">
+                <button class="filter-chip active" data-filter="all">Todos</button>
+                <button class="filter-chip filter-wa" data-filter="whatsapp">
+                  <span class="icon-dot-wa"></span> WhatsApp
+                </button>
+                <button class="filter-chip filter-ig" data-filter="instagram">
+                  <span class="icon-dot-ig"></span> Instagram
+                </button>
+                <button class="filter-chip filter-fb" data-filter="facebook">
+                  <span class="icon-dot-fb"></span> Facebook
+                </button>
+              </div>
+            </div>
+
+            <!-- LISTA SCROLLÁVEL DE CONVERSAS -->
+            <div class="conversations-list" id="conversations-list">
+              <div class="loading-state">
+                <div class="spinner"></div>
+                <p>Carregando conversas integradas...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- COLUNA 2: CHAT ATIVO EM TEMPO REAL -->
+          <div class="chat-column" id="chat-column">
+            <!-- HEADER DO CHAT -->
+            <div class="chat-header" id="chat-header">
+              <div class="contact-header-info">
+                <div class="contact-avatar-wrapper" id="chat-header-avatar-box">
+                  <img id="chat-header-avatar" src="" alt="Avatar">
+                  <span class="channel-badge-mini" id="chat-header-channel-icon"></span>
+                </div>
+                <div class="contact-details">
+                  <h4 id="chat-header-name">Selecione uma conversa</h4>
+                  <div class="contact-subinfo">
+                    <span class="contact-channel-name" id="chat-header-channel-label">Meta Platform</span>
+                    <span class="bullet">•</span>
+                    <span class="contact-identifier" id="chat-header-identifier"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chat-header-actions">
+                <button class="btn-icon" id="btn-quick-canned" title="Respostas Rápidas (/atalhos)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </button>
+                <button class="btn-icon" id="btn-toggle-info" title="Dados do Cliente / CRM">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                </button>
+                <button class="btn-secondary-small" id="btn-resolve-chat">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>Resolver</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- HISTÓRICO DE MENSAGENS -->
+            <div class="chat-messages" id="chat-messages">
+              <div class="empty-chat-state">
+                <div class="empty-icon-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <h3>OmniChat Central de Atendimento</h3>
+                <p>Selecione um cliente na lista ao lado para responder mensagens do WhatsApp, Instagram ou Facebook em tempo real.</p>
+              </div>
+            </div>
+
+            <!-- SUGESTÃO DE RESPOSTA RÁPIDA (QUANDO DIGITAR /) -->
+            <div class="canned-suggestions-popup" id="canned-suggestions" style="display: none;"></div>
+
+            <!-- BARRA DE ENVIO DE MENSAGENS -->
+            <div class="chat-input-area" id="chat-input-area">
+              <div class="input-actions-left">
+                <button class="btn-icon-input" id="btn-attach" title="Anexar arquivo / imagem">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                </button>
+                <button class="btn-icon-input" id="btn-emoji" title="Inserir emoji">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                </button>
+              </div>
+
+              <div class="input-field-wrapper">
+                <textarea id="message-text-input" placeholder="Digite uma mensagem ou digite / para respostas rápidas..." rows="1"></textarea>
+              </div>
+
+              <button class="btn-send-message" id="btn-send-message" title="Enviar mensagem (Enter)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- COLUNA 3: CRM & INFORMAÇÕES DO CLIENTE -->
+          <div class="crm-column" id="crm-column">
+            <div class="crm-header">
+              <h4>Dados do Contato</h4>
+              <button class="btn-icon-close" id="btn-close-crm">✕</button>
+            </div>
+            
+            <div class="crm-body" id="crm-body">
+              <div class="crm-profile-card">
+                <img id="crm-avatar" src="" alt="Foto">
+                <h3 id="crm-name">Contato</h3>
+                <span class="crm-handle" id="crm-identifier"></span>
+                <div class="crm-channel-tag" id="crm-channel-tag">WhatsApp</div>
+              </div>
+
+              <div class="crm-field-group">
+                <label>Status do Lead / Etiqueta</label>
+                <select id="crm-tag-select">
+                  <option value="Lead Quente">🔥 Lead Quente</option>
+                  <option value="Cliente VIP">⭐ Cliente VIP</option>
+                  <option value="Suporte">🛠️ Suporte Técnico</option>
+                  <option value="Negócio Fechado">💰 Negócio Fechado</option>
+                  <option value="Em Negociação">🤝 Em Negociação</option>
+                </select>
+              </div>
+
+              <div class="crm-field-group">
+                <label>Notas Internas da Equipe</label>
+                <textarea id="crm-notes-input" placeholder="Adicione anotações sobre este cliente que apenas você e sua equipe verão..."></textarea>
+                <button class="btn-secondary-full" id="btn-save-crm-notes">Salvar Anotação</button>
+              </div>
+
+              <div class="crm-actions-list">
+                <button class="crm-action-btn" id="btn-export-chat">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Exportar Histórico
+                </button>
+                <button class="crm-action-btn" id="btn-open-in-app">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  Abrir no App Oficial
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- ABA 2: WORKSPACE MULTI-APP (USAR OS APPS)     -->
+      <!-- ============================================== -->
+      <section id="section-workspace" class="tab-section">
+        <div class="workspace-container">
+          
+          <div class="workspace-topbar">
+            <div class="workspace-tabs">
+              <button class="ws-tab-btn active" data-app="whatsapp">
+                <span class="ws-icon-wa">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.35 5L2 22l5.12-1.34C8.55 21.52 10.23 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm.05 16.54c-1.54 0-3.03-.43-4.33-1.24l-.31-.19-3.21.84.86-3.13-.2-.32a7.994 7.994 0 0 1 7.19-12.01c4.41 0 8 3.59 8 8 0 4.42-3.59 8.01-8 8.05z"/></svg>
+                </span>
+                <span>WhatsApp Web</span>
+              </button>
+
+              <button class="ws-tab-btn" data-app="instagram">
+                <span class="ws-icon-ig">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                </span>
+                <span>Instagram Direct</span>
+              </button>
+
+              <button class="ws-tab-btn" data-app="messenger">
+                <span class="ws-icon-fb">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.912 1.455 5.512 3.734 7.202V22l3.39-1.86c.91.252 1.878.388 2.876.388 5.523 0 10-4.145 10-9.258C22 6.145 17.523 2 12 2zm1.042 12.457l-2.665-2.844-5.201 2.844 5.72-6.071 2.732 2.844 5.134-2.844-5.72 6.071z"/></svg>
+                </span>
+                <span>Facebook Messenger</span>
+              </button>
+
+              <button class="ws-tab-btn" data-app="business">
+                <span class="ws-icon-meta">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02z"/></svg>
+                </span>
+                <span>Meta Business Suite</span>
+              </button>
+
+              <button class="ws-tab-btn ws-tab-split" data-app="split" id="btn-split-view">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                <span>Tela Dividida (Lado a Lado)</span>
+              </button>
+            </div>
+
+            <div class="workspace-controls">
+              <button class="ws-ctrl-btn" id="btn-ws-open-popup" title="Abrir em Janela Dedicada Flutuante">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                <span>Abrir Janela Independente</span>
+              </button>
+              <button class="ws-ctrl-btn" id="btn-ws-reload" title="Recarregar Sessão">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="workspace-viewport" id="workspace-viewport">
+            <!-- MODO INDIVIDUAL -->
+            <div class="ws-app-frame-wrapper" id="ws-single-wrapper">
+              <div class="ws-app-banner">
+                <div class="ws-banner-info">
+                  <span class="ws-banner-dot online"></span>
+                  <strong id="ws-current-app-name">WhatsApp Web</strong> — Sessão conectada e sincronizada
+                </div>
+                <div class="ws-banner-actions">
+                  <span class="ws-hint">Dica: Você pode usar o app completo diretamente aqui ou em janela flutuante lateral!</span>
+                  <button class="btn-primary-mini" id="btn-ws-action-launch">Conectar / Abrir</button>
+                </div>
+              </div>
+
+              <div class="ws-embedded-card" id="ws-embedded-card">
+                <div class="ws-preview-header">
+                  <div class="ws-browser-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                  </div>
+                  <div class="ws-browser-url-bar" id="ws-url-display">https://web.whatsapp.com</div>
+                </div>
+
+                <div class="ws-content-frame" id="ws-content-container"></div>
+              </div>
+            </div>
+
+            <!-- MODO SPLIT-SCREEN (LADO A LADO) -->
+            <div class="ws-split-wrapper" id="ws-split-wrapper" style="display: none;">
+              <div class="ws-split-col">
+                <div class="ws-split-header ch-wa-bg">
+                  <span>🟢 WhatsApp Web</span>
+                  <button class="btn-mini-launch" onclick="launchPopout('whatsapp')">Desacoplar</button>
+                </div>
+                <div class="ws-split-content" id="split-content-left"></div>
+              </div>
+
+              <div class="ws-split-col">
+                <div class="ws-split-header ch-ig-bg">
+                  <span>🟣 Instagram Direct / Messenger</span>
+                  <button class="btn-mini-launch" onclick="launchPopout('instagram')">Desacoplar</button>
+                </div>
+                <div class="ws-split-content" id="split-content-right"></div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- ABA 3: CANAIS & CONEXÕES (INTEGRAÇÕES META)    -->
+      <!-- ============================================== -->
+      <section id="section-channels" class="tab-section">
+        <div class="channels-container">
+          <div class="section-title-bar">
+            <div>
+              <h2>Central de Conexões Meta</h2>
+              <p>Gerencie as integrações oficiais do WhatsApp Business Cloud API, Instagram Graph API e Facebook Messenger.</p>
+            </div>
+            <button class="btn-primary" id="btn-sync-all">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Sincronizar Conexões
+            </button>
+          </div>
+
+          <div class="channels-cards-grid" id="channels-cards-grid"></div>
+
+          <!-- DETALHES DE WEBHOOK & CREDENCIAIS META -->
+          <div class="meta-credentials-box">
+            <div class="credentials-header">
+              <div class="cred-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <h3>Configuração de Webhook Oficial (Meta for Developers)</h3>
+              </div>
+              <span class="badge-ready">Pronto para Produção</span>
+            </div>
+
+            <p class="cred-desc">
+              Cole estes dados diretamente no seu painel <strong>Meta for Developers (developers.facebook.com)</strong> para receber mensagens do WhatsApp Cloud API, Instagram Direct e Messenger em tempo real com validação SSL:
+            </p>
+
+            <div class="webhook-fields-grid">
+              <div class="field-item">
+                <label>Callback URL (Webhook Endpoint):</label>
+                <div class="copy-input-group">
+                  <input type="text" readonly id="webhook-url-val" value="https://seu-dominio.com/api/webhook">
+                  <button class="btn-copy" onclick="copyToClipboard('webhook-url-val')">Copiar</button>
+                </div>
+              </div>
+
+              <div class="field-item">
+                <label>Token de Verificação (Verify Token):</label>
+                <div class="copy-input-group">
+                  <input type="text" readonly id="webhook-token-val" value="omnichat_token_seguro_2026">
+                  <button class="btn-copy" onclick="copyToClipboard('webhook-token-val')">Copiar</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="webhook-test-bar">
+              <button class="btn-secondary" id="btn-test-webhook-ping">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Testar Conectividade do Webhook
+              </button>
+              <div id="webhook-ping-result" class="ping-result-badge">Latência: 14ms (OK)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- ABA 4: AUTOMAÇÕES & RESPOSTAS RÁPIDAS         -->
+      <!-- ============================================== -->
+      <section id="section-automations" class="tab-section">
+        <div class="automations-container">
+          <div class="section-title-bar">
+            <div>
+              <h2>Automação & Chatbot Omnichannel</h2>
+              <p>Configure respostas automáticas de boas-vindas, fora do horário e atalhos rápidos para agilizar o atendimento.</p>
+            </div>
+            <button class="btn-primary" id="btn-add-canned-modal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nova Resposta Rápida
+            </button>
+          </div>
+
+          <div class="automations-columns-layout">
+            <div class="automation-card-section">
+              <div class="section-subtitle">
+                <h3>⚡ Respostas Rápidas (Atalhos /)</h3>
+                <span>Envie textos prontos digitando o atalho no chat</span>
+              </div>
+              <div class="canned-list" id="canned-list"></div>
+            </div>
+
+            <div class="automation-card-section">
+              <div class="section-subtitle">
+                <h3>🤖 Regras do Assistente Automático</h3>
+                <span>Disparadas instantaneamente ao receber novas mensagens</span>
+              </div>
+              <div class="rules-list" id="rules-list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- ABA 5: ANALYTICS & MÉTRICAS                   -->
+      <!-- ============================================== -->
+      <section id="section-analytics" class="tab-section">
+        <div class="analytics-container">
+          <div class="section-title-bar">
+            <div>
+              <h2>Desempenho & Métricas Omnichannel</h2>
+              <p>Volume de atendimentos, distribuição de canais e tempo de resposta em tempo real.</p>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-icon-box kpi-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="kpi-info">
+                <span class="kpi-label">Atendimentos Totais</span>
+                <h3 id="kpi-total-convs">0</h3>
+                <span class="kpi-trend positive">↑ +24% este mês</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon-box kpi-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+              </div>
+              <div class="kpi-info">
+                <span class="kpi-label">Tempo Médio Resposta</span>
+                <h3 id="kpi-avg-time">1.8 min</h3>
+                <span class="kpi-trend positive">⚡ 4x mais rápido</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon-box kpi-purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div class="kpi-info">
+                <span class="kpi-label">Taxa de Resolução</span>
+                <h3 id="kpi-satisfaction">98.5%</h3>
+                <span class="kpi-trend positive">⭐ Excelência Meta</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon-box kpi-amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <div class="kpi-info">
+                <span class="kpi-label">Mensagens Processadas</span>
+                <h3 id="kpi-total-messages">0</h3>
+                <span class="kpi-trend neutral">WhatsApp, Insta & Face</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="analytics-panels-grid">
+            <div class="chart-panel">
+              <h3>Distribuição por Canal de Atendimento</h3>
+              <div class="channel-distribution-bars" id="channel-bars-container"></div>
+            </div>
+
+            <div class="chart-panel">
+              <h3>Status das Conversas</h3>
+              <div class="status-summary-grid">
+                <div class="status-card st-open">
+                  <div class="status-num" id="stat-open-num">0</div>
+                  <div class="status-txt">Em Aberto</div>
+                </div>
+                <div class="status-card st-resolved">
+                  <div class="status-num" id="stat-resolved-num">0</div>
+                  <div class="status-txt">Resolvidos</div>
+                </div>
+              </div>
+              <div class="kpi-tip">
+                💡 <strong>Dica Pro:</strong> Você pode conectar mais de uma conta de WhatsApp ou Instagram simultaneamente na aba <em>Canais & Conexões</em>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ============================================== -->
+    <!-- MODAL: SIMULAR MENSAGEM RECEBIDA               -->
+    <!-- ============================================== -->
+    <div class="modal-overlay" id="modal-simulate">
+      <div class="modal-window">
+        <div class="modal-header">
+          <h3>Simular Mensagem de Cliente</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-simulate')">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-helper">Teste a chegada instantânea de mensagens simulando um cliente real enviando mensagem pelo WhatsApp, Instagram Direct ou Facebook Messenger:</p>
+          
+          <div class="form-group">
+            <label>Canal de Origem:</label>
+            <div class="channel-selector-radio">
+              <label class="radio-card ch-wa-selected">
+                <input type="radio" name="sim-channel" value="whatsapp" checked>
+                <span>🟢 WhatsApp</span>
+              </label>
+              <label class="radio-card ch-ig-selected">
+                <input type="radio" name="sim-channel" value="instagram">
+                <span>🟣 Instagram</span>
+              </label>
+              <label class="radio-card ch-fb-selected">
+                <input type="radio" name="sim-channel" value="facebook">
+                <span>🔵 Facebook</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Nome do Cliente / Remetente:</label>
+            <input type="text" id="sim-contact-name" value="Guilherme Ferreira" placeholder="Ex: Rodrigo Santos">
+          </div>
+
+          <div class="form-group">
+            <label>Mensagem:</label>
+            <textarea id="sim-message-text" rows="3" placeholder="Digite a mensagem que o cliente enviou...">Olá! Quero tirar uma dúvida sobre a contratação do serviço.</textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal('modal-simulate')">Cancelar</button>
+          <button class="btn-primary" id="btn-confirm-simulate">Simular Envio Agora</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL: NOVA RESPOSTA RÁPIDA                    -->
+    <!-- ============================================== -->
+    <div class="modal-overlay" id="modal-canned">
+      <div class="modal-window">
+        <div class="modal-header">
+          <h3>Nova Resposta Rápida</h3>
+          <button class="modal-close-btn" onclick="closeModal('modal-canned')">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Atalho (Ex: /pix, /precos, /duvida):</label>
+            <input type="text" id="new-cr-shortcut" placeholder="/atalho">
+          </div>
+          <div class="form-group">
+            <label>Título Descritivo:</label>
+            <input type="text" id="new-cr-title" placeholder="Ex: Informações de Pagamento">
+          </div>
+          <div class="form-group">
+            <label>Texto da Resposta:</label>
+            <textarea id="new-cr-text" rows="4" placeholder="Digite o texto que será colado quando usar o atalho..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal('modal-canned')">Cancelar</button>
+          <button class="btn-primary" id="btn-save-new-canned">Salvar Resposta Rápida</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
