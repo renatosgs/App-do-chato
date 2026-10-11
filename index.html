@@ -1,636 +1,3322 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OmniChat Pro - Hub Integrado WhatsApp, Facebook & Instagram</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325D366'><path d='M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.08L2 22l5.05-1.33C8.5 21.53 10.2 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z'/></svg>">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="OmniChat Pro - Hub unificado de atendimento WhatsApp, Instagram e Facebook Messenger">
+<meta name="theme-color" content="#0b141a">
+<title>OmniChat Pro — Hub Integrado WhatsApp, Instagram & Facebook</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325D366'><path d='M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.38 5.08L2 22l5.05-1.33C8.5 21.53 10.2 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z'/></svg>">
+
+<style>
+/* ============================================================
+   RESET & VARIÁVEIS DE TEMA
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-app: #0b141a;
+  --bg-panel: #111b21;
+  --bg-elevated: #202c33;
+  --bg-hover: #2a3942;
+  --bg-active: #2a3942;
+  --border: #222d34;
+  --border-strong: #2f3b44;
+  --text-primary: #e9edef;
+  --text-secondary: #8696a0;
+  --text-muted: #667781;
+  --accent: #00a884;
+  --accent-hover: #06cf9c;
+  --accent-soft: rgba(0,168,132,.15);
+  --danger: #f15c6d;
+  --wa: #25d366;
+  --ig: #e1306c;
+  --fb: #1877f2;
+  --shadow: 0 8px 28px rgba(0,0,0,.4);
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+
+body.theme-light {
+  --bg-app: #f0f2f5;
+  --bg-panel: #ffffff;
+  --bg-elevated: #f7f9fc;
+  --bg-hover: #eaeef2;
+  --bg-active: #e1e8ee;
+  --border: #e3e8ed;
+  --border-strong: #d1d9e0;
+  --text-primary: #111b21;
+  --text-secondary: #54656f;
+  --text-muted: #8696a0;
+  --shadow: 0 8px 28px rgba(0,0,0,.08);
+}
+
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  overflow: hidden;
+  transition: background .3s, color .3s;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, textarea, select { font-family: inherit; font-size: inherit; color: inherit; }
+button { cursor: pointer; border: none; background: none; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ============================================================
+   LAYOUT PRINCIPAL
+============================================================ */
+.app-container {
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* ============================================================
+   SIDEBAR PRINCIPAL
+============================================================ */
+.sidebar-main {
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 0;
+  gap: 8px;
+  position: relative;
+  z-index: 20;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 14px;
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+.brand-logo { position: relative; }
+.logo-icon { width: 32px; height: 32px; color: var(--accent); }
+.logo-pulse {
+  position: absolute; inset: -4px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  animation: pulse 2.4s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(.8); opacity: .6; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.brand-info { display: none; }
+.brand-info h2 { font-size: 15px; letter-spacing: -.3px; }
+.brand-info h2 span { color: var(--accent); font-weight: 800; }
+.badge-partner {
+  font-size: 9px; color: var(--accent); font-weight: 600;
+  letter-spacing: .5px; text-transform: uppercase;
+}
+.brand-info h2 span { color: var(--accent); }
+.brand-info h2 { font-weight: 600; }
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 0 8px;
+  flex: 1;
+}
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  position: relative;
+  transition: all .18s;
+  font-size: 10px;
+  width: 100%;
+}
+.nav-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.nav-btn.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.nav-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+.nav-icon svg { width: 20px; height: 20px; }
+.nav-text { font-size: 9.5px; text-align: center; line-height: 1.15; font-weight: 500; letter-spacing: -.2px; }
+.nav-badge {
+  position: absolute;
+  top: 6px; right: 10px;
+  background: var(--danger);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+.nav-tag-pill {
+  position: absolute;
+  top: 4px; right: 4px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 7px;
+  padding: 2px 5px;
+  border-radius: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.nav-status-dot {
+  position: absolute;
+  top: 8px; right: 12px;
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.nav-status-dot.online { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.sidebar-channels-summary {
+  display: none;
+}
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  width: 100%;
+  align-items: center;
+}
+.footer-action-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+  transition: all .18s;
+}
+.footer-action-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.footer-action-btn svg { width: 18px; height: 18px; }
+.footer-action-btn.active { color: var(--accent); }
+.theme-icon-light { display: none; }
+body.theme-light .theme-icon-dark { display: none; }
+body.theme-light .theme-icon-light { display: block; }
+
+.user-badge { margin-top: 4px; }
+.user-avatar-mini {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #128c7e);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 12px;
+  cursor: pointer;
+  border: 2px solid var(--accent-soft);
+}
+
+/* ============================================================
+   CONTEÚDO PRINCIPAL
+============================================================ */
+.content-main {
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-app);
+}
+.tab-section {
+  display: none;
+  height: 100%;
+  overflow: hidden;
+}
+.tab-section.active { display: block; }
+
+/* ============================================================
+   INBOX — GRID DE 3 COLUNAS
+============================================================ */
+.inbox-container {
+  display: grid;
+  grid-template-columns: 340px 1fr 0;
+  height: 100%;
+  transition: grid-template-columns .3s;
+}
+.inbox-container.crm-open {
+  grid-template-columns: 340px 1fr 320px;
+}
+
+/* COLUNA 1 — LISTA DE CONVERSAS */
+.conversations-column {
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.column-header {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.header-top h3 { font-size: 18px; font-weight: 700; letter-spacing: -.4px; }
+.btn-primary-small {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent);
+  color: #0b141a;
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all .18s;
+}
+.btn-primary-small:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btn-primary-small svg { width: 14px; height: 14px; }
+
+.search-box {
+  position: relative;
+  margin-bottom: 10px;
+}
+.search-box svg {
+  position: absolute; left: 12px; top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  color: var(--text-muted);
+}
+.search-box input {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid transparent;
+  padding: 9px 12px 9px 38px;
+  border-radius: 10px;
+  font-size: 13px;
+  outline: none;
+  transition: all .18s;
+}
+.search-box input:focus {
+  border-color: var(--accent);
+  background: var(--bg-panel);
+}
+
+.channel-filters {
+  display: flex; gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.channel-filters::-webkit-scrollbar { display: none; }
+.filter-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 11px;
+  border-radius: 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition: all .18s;
+}
+.filter-chip:hover { background: var(--bg-hover); }
+.filter-chip.active {
+  background: var(--accent);
+  color: #0b141a;
+}
+.icon-dot-wa, .icon-dot-ig, .icon-dot-fb {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.icon-dot-wa { background: var(--wa); }
+.icon-dot-ig { background: var(--ig); }
+.icon-dot-fb { background: var(--fb); }
+
+.conversations-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+.loading-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  gap: 12px;
+}
+.spinner {
+  width: 26px; height: 26px;
+  border: 3px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.conv-item {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 12px;
+  padding: 11px 16px;
+  cursor: pointer;
+  transition: background .15s;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  position: relative;
+}
+.conv-item:hover { background: var(--bg-hover); }
+.conv-item.active { background: var(--bg-active); }
+.conv-item.active::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent);
+}
+.conv-avatar-wrap { position: relative; }
+.conv-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: var(--bg-elevated);
+}
+.conv-channel-badge {
+  position: absolute; right: -2px; bottom: -2px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--bg-panel);
+  color: #fff;
+  font-size: 9px;
+}
+.conv-channel-badge.whatsapp { background: var(--wa); }
+.conv-channel-badge.instagram { background: var(--ig); }
+.conv-channel-badge.facebook { background: var(--fb); }
+
+.conv-info { min-width: 0; }
+.conv-name-row {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 3px;
+}
+.conv-name {
+  font-size: 14px; font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.conv-time {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.conv-preview {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.conv-preview strong { color: var(--text-primary); font-weight: 500; }
+
+.conv-meta {
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 4px;
+}
+.conv-unread {
+  background: var(--accent);
+  color: #0b141a;
+  font-size: 10.5px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 5px;
+}
+.conv-tag {
+  font-size: 9px;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* COLUNA 2 — CHAT */
+.chat-column {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-app);
+  overflow: hidden;
+  position: relative;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  min-height: 62px;
+}
+.contact-header-info {
+  display: flex; align-items: center; gap: 12px;
+  min-width: 0;
+}
+.contact-avatar-wrapper { position: relative; }
+.contact-avatar-wrapper img {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-elevated);
+}
+.channel-badge-mini {
+  position: absolute; right: -2px; bottom: -2px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 8px;
+  border: 2px solid var(--bg-panel);
+}
+.channel-badge-mini.whatsapp { background: var(--wa); }
+.channel-badge-mini.instagram { background: var(--ig); }
+.channel-badge-mini.facebook { background: var(--fb); }
+
+.contact-details { min-width: 0; }
+.contact-details h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.contact-subinfo {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+.bullet { color: var(--text-muted); }
+.contact-channel-name { color: var(--accent); font-weight: 500; }
+
+.chat-header-actions {
+  display: flex; gap: 6px;
+  align-items: center;
+}
+.btn-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+  transition: all .18s;
+}
+.btn-icon:hover { background: var(--bg-hover); color: var(--text-primary); }
+.btn-icon svg { width: 18px; height: 18px; }
+
+.btn-secondary-small {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  padding: 7px 12px;
+  border-radius: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all .18s;
+}
+.btn-secondary-small:hover { background: var(--bg-hover); }
+.btn-secondary-small svg { width: 14px; height: 14px; }
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 60px 20px 60px;
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(0,168,132,.04), transparent 45%),
+    radial-gradient(circle at 80% 90%, rgba(24,119,242,.04), transparent 45%);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.empty-chat-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  gap: 14px;
+}
+.empty-icon-box {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.empty-icon-box svg { width: 44px; height: 44px; }
+.empty-chat-state h3 { font-size: 20px; color: var(--text-primary); font-weight: 600; }
+.empty-chat-state p { max-width: 400px; font-size: 13px; line-height: 1.6; }
+
+.msg-row {
+  display: flex;
+  margin-bottom: 2px;
+  animation: msgIn .25s ease-out;
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.msg-row.in { justify-content: flex-start; }
+.msg-row.out { justify-content: flex-end; }
+
+.msg-bubble {
+  max-width: 65%;
+  padding: 7px 11px 6px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  position: relative;
+  word-wrap: break-word;
+  box-shadow: 0 1px 1px rgba(0,0,0,.08);
+}
+.msg-row.in .msg-bubble {
+  background: var(--bg-elevated);
+  border-top-left-radius: 3px;
+}
+.msg-row.out .msg-bubble {
+  background: #005c4b;
+  color: #e9edef;
+  border-top-right-radius: 3px;
+}
+body.theme-light .msg-row.out .msg-bubble { background: #d9fdd3; color: #111b21; }
+
+.msg-time {
+  display: inline-block;
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-left: 8px;
+  float: right;
+  margin-top: 3px;
+}
+.msg-row.out .msg-time { color: rgba(255,255,255,.6); }
+body.theme-light .msg-row.out .msg-time { color: rgba(0,0,0,.45); }
+
+.msg-check {
+  display: inline-block;
+  margin-left: 3px;
+  font-size: 11px;
+  color: #53bdeb;
+}
+.msg-channel-tag {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.msg-channel-tag.whatsapp { background: rgba(37,211,102,.2); color: var(--wa); }
+.msg-channel-tag.instagram { background: rgba(225,48,108,.2); color: var(--ig); }
+.msg-channel-tag.facebook { background: rgba(24,119,242,.2); color: var(--fb); }
+
+/* BARRA DE ENVIO */
+.chat-input-area {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 10px 20px 14px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+}
+.input-actions-left { display: flex; gap: 2px; }
+.btn-icon-input {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+  transition: all .18s;
+}
+.btn-icon-input:hover { background: var(--bg-hover); color: var(--text-primary); }
+.btn-icon-input svg { width: 20px; height: 20px; }
+
+.input-field-wrapper {
+  flex: 1;
+  background: var(--bg-elevated);
+  border-radius: 22px;
+  padding: 6px 4px 6px 16px;
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+}
+#message-text-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 14px;
+  line-height: 1.35;
+  max-height: 120px;
+  padding: 6px 0;
+  color: var(--text-primary);
+}
+#message-text-input::placeholder { color: var(--text-muted); }
+
+.btn-send-message {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #0b141a;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .18s;
+  flex-shrink: 0;
+}
+.btn-send-message:hover { background: var(--accent-hover); transform: scale(1.05); }
+.btn-send-message svg { width: 20px; height: 20px; }
+
+.canned-suggestions-popup {
+  position: absolute;
+  bottom: 76px;
+  left: 20px;
+  right: 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 100;
+}
+.canned-suggestion-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.canned-suggestion-item:last-child { border-bottom: none; }
+.canned-suggestion-item:hover, .canned-suggestion-item.highlight {
+  background: var(--bg-hover);
+}
+.canned-suggestion-shortcut {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.canned-suggestion-title {
+  font-size: 12.5px;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.canned-suggestion-text {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* COLUNA 3 — CRM */
+.crm-column {
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all .3s;
+}
+.crm-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.crm-header h4 { font-size: 15px; font-weight: 700; }
+.btn-icon-close {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+  font-size: 16px;
+  transition: all .18s;
+}
+.btn-icon-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.crm-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 18px;
+}
+.crm-profile-card {
+  display: flex; flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 12px 0 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+.crm-profile-card img {
+  width: 78px; height: 78px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 12px;
+  border: 3px solid var(--accent-soft);
+  background: var(--bg-elevated);
+}
+.crm-profile-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+.crm-handle { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
+.crm-channel-tag {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+.crm-channel-tag.whatsapp { background: rgba(37,211,102,.15); color: var(--wa); }
+.crm-channel-tag.instagram { background: rgba(225,48,108,.15); color: var(--ig); }
+.crm-channel-tag.facebook { background: rgba(24,119,242,.15); color: var(--fb); }
+
+.crm-field-group { margin-bottom: 16px; }
+.crm-field-group label {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: 6px;
+}
+.crm-field-group select, .crm-field-group textarea {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid transparent;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  transition: all .18s;
+}
+.crm-field-group select:focus, .crm-field-group textarea:focus {
+  border-color: var(--accent);
+}
+.crm-field-group textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.btn-secondary-full {
+  width: 100%;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  padding: 9px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: 8px;
+  transition: all .18s;
+}
+.btn-secondary-full:hover { background: var(--bg-hover); }
+
+.crm-actions-list {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.crm-action-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  transition: all .18s;
+}
+.crm-action-btn:hover { background: var(--bg-hover); }
+.crm-action-btn svg { width: 16px; height: 16px; color: var(--text-secondary); }
+
+/* ============================================================
+   WORKSPACE
+============================================================ */
+.workspace-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px 24px;
+  gap: 16px;
+  overflow: hidden;
+}
+.workspace-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.workspace-tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--bg-panel);
+  padding: 5px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.ws-tab-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all .18s;
+}
+.ws-tab-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.ws-tab-btn.active {
+  background: var(--accent);
+  color: #0b141a;
+}
+.ws-tab-btn svg { width: 16px; height: 16px; }
+.ws-icon-wa svg { color: var(--wa); }
+.ws-icon-ig svg { color: var(--ig); }
+.ws-icon-fb svg { color: var(--fb); }
+.ws-icon-meta svg { color: var(--fb); }
+.ws-tab-btn.active svg { color: #0b141a !important; }
+
+.workspace-controls { display: flex; gap: 8px; }
+.ws-ctrl-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all .18s;
+}
+.ws-ctrl-btn:hover { background: var(--bg-hover); }
+.ws-ctrl-btn svg { width: 14px; height: 14px; }
+
+.workspace-viewport {
+  flex: 1;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.ws-app-frame-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.ws-app-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  font-size: 12.5px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ws-banner-info { display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
+.ws-banner-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.ws-banner-dot.online {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  animation: pulse2 2s infinite;
+}
+@keyframes pulse2 { 50% { opacity: .5; } }
+.ws-banner-actions { display: flex; align-items: center; gap: 12px; }
+.ws-hint { color: var(--text-muted); font-size: 11.5px; font-style: italic; }
+.btn-primary-mini {
+  background: var(--accent);
+  color: #0b141a;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all .18s;
+}
+.btn-primary-mini:hover { background: var(--accent-hover); }
+
+.ws-embedded-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ws-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+.ws-browser-dots { display: flex; gap: 6px; }
+.ws-browser-dots .dot {
+  width: 11px; height: 11px; border-radius: 50%;
+}
+.dot.red { background: #ff5f56; }
+.dot.yellow { background: #ffbd2e; }
+.dot.green { background: #27c93f; }
+.ws-browser-url-bar {
+  flex: 1;
+  background: var(--bg-panel);
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: 'SF Mono', Consolas, monospace;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-content-frame {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  overflow-y: auto;
+}
+.ws-launch-card {
+  text-align: center;
+  max-width: 560px;
+  padding: 32px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+.ws-launch-icon {
+  width: 80px; height: 80px;
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  color: #fff;
+}
+.ws-launch-icon.whatsapp { background: linear-gradient(135deg, #25d366, #128c7e); }
+.ws-launch-icon.instagram { background: linear-gradient(135deg, #e1306c, #833ab4, #fd1d1d); }
+.ws-launch-icon.messenger { background: linear-gradient(135deg, #1877f2, #0a4fb5); }
+.ws-launch-icon.business { background: linear-gradient(135deg, #0668e1, #0a4fb5); }
+.ws-launch-icon svg { width: 42px; height: 42px; }
+.ws-launch-card h3 { font-size: 22px; margin-bottom: 10px; font-weight: 700; }
+.ws-launch-card p {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  line-height: 1.65;
+  margin-bottom: 22px;
+}
+.ws-launch-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn-launch-primary {
+  background: var(--accent);
+  color: #0b141a;
+  padding: 11px 22px;
+  border-radius: 22px;
+  font-weight: 700;
+  font-size: 13.5px;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all .18s;
+}
+.btn-launch-primary:hover { background: var(--accent-hover); transform: translateY(-2px); }
+.btn-launch-primary svg { width: 16px; height: 16px; }
+
+.ws-note {
+  margin-top: 18px;
+  padding: 12px 14px;
+  background: rgba(0,168,132,.08);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+  line-height: 1.55;
+}
+
+.ws-split-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100%;
+  gap: 1px;
+  background: var(--border);
+}
+.ws-split-col {
+  background: var(--bg-app);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.ws-split-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #fff;
+}
+.ch-wa-bg { background: linear-gradient(90deg, #25d366, #128c7e); }
+.ch-ig-bg { background: linear-gradient(90deg, #833ab4, #e1306c); }
+.btn-mini-launch {
+  background: rgba(255,255,255,.2);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all .18s;
+}
+.btn-mini-launch:hover { background: rgba(255,255,255,.32); }
+.ws-split-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* ============================================================
+   CANAIS & CONEXÕES
+============================================================ */
+.channels-container {
+  height: 100%;
+  overflow-y: auto;
+  padding: 30px 36px;
+}
+.section-title-bar {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.section-title-bar h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -.4px;
+}
+.section-title-bar p {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  max-width: 640px;
+  line-height: 1.5;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #0b141a;
+  padding: 10px 20px;
+  border-radius: 22px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all .18s;
+}
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btn-primary svg { width: 15px; height: 15px; }
+
+.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: all .18s;
+}
+.btn-secondary:hover { background: var(--bg-hover); }
+.btn-secondary svg { width: 15px; height: 15px; }
+
+.channels-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+.channel-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  transition: all .22s;
+  position: relative;
+  overflow: hidden;
+}
+.channel-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.channel-card.whatsapp::before { background: var(--wa); }
+.channel-card.instagram::before { background: linear-gradient(90deg, #833ab4, #e1306c); }
+.channel-card.facebook::before { background: var(--fb); }
+.channel-card.business::before { background: linear-gradient(90deg, #0668e1, #0a4fb5); }
+.channel-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+  border-color: var(--border-strong);
+}
+.channel-card-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.channel-card-icon {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.channel-card.whatsapp .channel-card-icon { background: linear-gradient(135deg, #25d366, #128c7e); }
+.channel-card.instagram .channel-card-icon { background: linear-gradient(135deg, #833ab4, #e1306c, #fd1d1d); }
+.channel-card.facebook .channel-card-icon { background: linear-gradient(135deg, #1877f2, #0a4fb5); }
+.channel-card.business .channel-card-icon { background: linear-gradient(135deg, #0668e1, #0a4fb5); }
+.channel-card-icon svg { width: 24px; height: 24px; }
+
+.channel-status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.channel-status-badge.connected { background: rgba(0,168,132,.15); color: var(--accent); }
+.channel-status-badge.pending { background: rgba(255,193,7,.15); color: #ffc107; }
+.channel-status-badge.disconnected { background: rgba(241,92,109,.15); color: var(--danger); }
+.status-dot-mini {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor;
+  animation: pulse2 2s infinite;
+}
+
+.channel-card h3 { font-size: 16px; margin-bottom: 6px; font-weight: 700; }
+.channel-card-desc {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 14px;
+  min-height: 40px;
+}
+.channel-card-metrics {
+  display: flex; gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.channel-metric { flex: 1; }
+.channel-metric-label { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 2px; }
+.channel-metric-value { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+.channel-card-actions { display: flex; gap: 8px; }
+.channel-card-actions button {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all .18s;
+}
+.btn-connect {
+  background: var(--accent);
+  color: #0b141a;
+}
+.btn-connect:hover { background: var(--accent-hover); }
+.btn-disconnect {
+  background: var(--bg-elevated);
+  color: var(--danger);
+}
+.btn-disconnect:hover { background: var(--bg-hover); }
+
+.meta-credentials-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+.credentials-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cred-title { display: flex; align-items: center; gap: 10px; }
+.cred-title svg { width: 20px; height: 20px; color: var(--accent); }
+.cred-title h3 { font-size: 15px; font-weight: 700; }
+.badge-ready {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(0,168,132,.15);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+.cred-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+.cred-desc strong { color: var(--text-primary); }
+.webhook-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.field-item label {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.copy-input-group {
+  display: flex;
+  gap: 6px;
+}
+.copy-input-group input {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-family: 'SF Mono', Consolas, monospace;
+  outline: none;
+  color: var(--text-primary);
+  min-width: 0;
+}
+.btn-copy {
+  background: var(--accent);
+  color: #0b141a;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all .18s;
+  white-space: nowrap;
+}
+.btn-copy:hover { background: var(--accent-hover); }
+.webhook-test-bar {
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap;
+}
+.ping-result-badge {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: rgba(0,168,132,.1);
+}
+
+/* ============================================================
+   AUTOMAÇÕES
+============================================================ */
+.automations-container {
+  height: 100%;
+  overflow-y: auto;
+  padding: 30px 36px;
+}
+.automations-columns-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 20px;
+}
+.automation-card-section {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+.section-subtitle { margin-bottom: 16px; }
+.section-subtitle h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.section-subtitle span { font-size: 12px; color: var(--text-secondary); }
+
+.canned-list, .rules-list {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.canned-item {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: all .18s;
+}
+.canned-item:hover { border-color: var(--accent); }
+.canned-shortcut {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 11.5px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.canned-content { flex: 1; min-width: 0; }
+.canned-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.canned-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.canned-delete {
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: 4px;
+  transition: all .18s;
+  font-size: 16px;
+  line-height: 1;
+}
+.canned-delete:hover { color: var(--danger); background: rgba(241,92,109,.1); }
+
+.rule-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.rule-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.rule-icon svg { width: 18px; height: 18px; }
+.rule-content { flex: 1; min-width: 0; }
+.rule-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.rule-desc { font-size: 11.5px; color: var(--text-secondary); }
+
+.toggle-switch {
+  width: 40px; height: 22px;
+  background: var(--border-strong);
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+  transition: background .22s;
+  flex-shrink: 0;
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .22s;
+}
+.toggle-switch.active { background: var(--accent); }
+.toggle-switch.active::after { transform: translateX(18px); }
+
+/* ============================================================
+   ANALYTICS
+============================================================ */
+.analytics-container {
+  height: 100%;
+  overflow-y: auto;
+  padding: 30px 36px;
+}
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  gap: 14px;
+  transition: all .22s;
+}
+.kpi-card:hover { border-color: var(--border-strong); }
+.kpi-icon-box {
+  width: 50px; height: 50px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.kpi-icon-box svg { width: 24px; height: 24px; }
+.kpi-blue { background: rgba(24,119,242,.15); color: var(--fb); }
+.kpi-green { background: rgba(0,168,132,.15); color: var(--accent); }
+.kpi-purple { background: rgba(131,58,180,.15); color: #a855f7; }
+.kpi-amber { background: rgba(255,193,7,.15); color: #ffc107; }
+
+.kpi-info { flex: 1; min-width: 0; }
+.kpi-label {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.kpi-info h3 { font-size: 26px; font-weight: 700; margin-bottom: 6px; letter-spacing: -.5px; }
+.kpi-trend { font-size: 11.5px; font-weight: 600; }
+.kpi-trend.positive { color: var(--accent); }
+.kpi-trend.neutral { color: var(--text-muted); }
+
+.analytics-panels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 18px;
+}
+.chart-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+}
+.chart-panel h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.channel-distribution-bars {
+  display: flex; flex-direction: column; gap: 14px;
+}
+.dist-bar-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.dist-bar-label {
+  width: 100px;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+}
+.dist-bar-label .icon-dot { width: 8px; height: 8px; border-radius: 50%; }
+.dist-bar-track {
+  flex: 1;
+  height: 10px;
+  background: var(--bg-elevated);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.dist-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width .8s cubic-bezier(.4,0,.2,1);
+}
+.dist-bar-fill.whatsapp { background: linear-gradient(90deg, #25d366, #128c7e); }
+.dist-bar-fill.instagram { background: linear-gradient(90deg, #833ab4, #e1306c); }
+.dist-bar-fill.facebook { background: linear-gradient(90deg, #1877f2, #0a4fb5); }
+.dist-bar-value {
+  width: 44px;
+  text-align: right;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.status-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.status-card {
+  padding: 18px;
+  border-radius: var(--radius);
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.status-card.st-open { background: rgba(255,193,7,.08); border-color: rgba(255,193,7,.25); }
+.status-card.st-resolved { background: rgba(0,168,132,.08); border-color: rgba(0,168,132,.25); }
+.status-num {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  letter-spacing: -1px;
+}
+.st-open .status-num { color: #ffc107; }
+.st-resolved .status-num { color: var(--accent); }
+.status-txt {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  font-weight: 600;
+}
+.kpi-tip {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding: 12px 14px;
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent);
+}
+.kpi-tip strong { color: var(--text-primary); }
+
+/* ============================================================
+   MODAIS
+============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn .2s;
+}
+.modal-overlay.active { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-window {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow);
+  animation: slideUp .25s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { font-size: 16px; font-weight: 700; }
+.modal-close-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+  font-size: 16px;
+  transition: all .18s;
+}
+.modal-close-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.modal-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  flex: 1;
+}
+.modal-helper {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.form-group input, .form-group textarea {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  outline: none;
+  transition: all .18s;
+  color: var(--text-primary);
+}
+.form-group input:focus, .form-group textarea:focus {
+  border-color: var(--accent);
+  background: var(--bg-panel);
+}
+.form-group textarea {
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.channel-selector-radio {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.radio-card {
+  display: flex; align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: var(--bg-elevated);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .18s;
+  font-size: 13px;
+  font-weight: 600;
+}
+.radio-card input { display: none; }
+.radio-card:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 22px;
+  border-top: 1px solid var(--border);
+}
+.modal-footer .btn-secondary, .modal-footer .btn-primary {
+  padding: 10px 20px;
+  border-radius: 20px;
+}
+
+/* ============================================================
+   TOAST / NOTIFICAÇÕES
+============================================================ */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 2000;
+  max-width: 360px;
+}
+.toast {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  padding: 14px 18px;
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  animation: slideInRight .3s cubic-bezier(.4,0,.2,1);
+  min-width: 280px;
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.toast.whatsapp { border-left-color: var(--wa); }
+.toast.instagram { border-left-color: var(--ig); }
+.toast.facebook { border-left-color: var(--fb); }
+.toast.success { border-left-color: var(--accent); }
+.toast.error { border-left-color: var(--danger); }
+.toast-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+  font-weight: 700;
+}
+.toast-icon.whatsapp { background: var(--wa); }
+.toast-icon.instagram { background: var(--ig); }
+.toast-icon.facebook { background: var(--fb); }
+.toast-icon.success { background: var(--accent); }
+.toast-icon.error { background: var(--danger); }
+.toast-content { flex: 1; min-width: 0; }
+.toast-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.toast-msg {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ============================================================
+   RESPONSIVO
+============================================================ */
+@media (max-width: 1100px) {
+  .inbox-container { grid-template-columns: 300px 1fr 0; }
+  .inbox-container.crm-open { grid-template-columns: 300px 1fr 280px; }
+  .chat-messages { padding: 20px 24px; }
+}
+@media (max-width: 860px) {
+  .app-container { grid-template-columns: 1fr; }
+  .sidebar-main {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    top: auto;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 6px 4px;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    z-index: 50;
+    height: 62px;
+    gap: 0;
+  }
+  .brand, .sidebar-channels-summary { display: none; }
+  .nav-links { flex-direction: row; padding: 0; gap: 0; flex: 1; justify-content: space-around; }
+  .nav-btn { padding: 6px 4px; gap: 2px; }
+  .nav-text { font-size: 8.5px; }
+  .nav-icon svg { width: 18px; height: 18px; }
+  .nav-tag-pill { display: none; }
+  .sidebar-footer { flex-direction: row; border-top: none; border-left: 1px solid var(--border); padding: 0 0 0 8px; margin-left: 6px; gap: 2px; padding-top: 0; }
+  .footer-action-btn { width: 30px; height: 30px; }
+  .footer-action-btn svg { width: 16px; height: 16px; }
+  .user-avatar-mini { width: 28px; height: 28px; font-size: 10px; }
+  .content-main { padding-bottom: 62px; }
+  
+  .inbox-container { grid-template-columns: 1fr; }
+  .inbox-container.crm-open { grid-template-columns: 1fr; }
+  .chat-column.hidden-mobile { display: none; }
+  .conversations-column.hidden-mobile { display: none; }
+  .crm-column { position: fixed; right: 0; top: 0; bottom: 62px; width: 85%; max-width: 340px; z-index: 40; box-shadow: var(--shadow); }
+  .chat-messages { padding: 16px; }
+  .msg-bubble { max-width: 82%; }
+  
+  .channels-container, .automations-container, .analytics-container {
+    padding: 20px 16px;
+  }
+  .workspace-container { padding: 14px; }
+  .workspace-topbar { flex-direction: column; align-items: stretch; }
+  .workspace-tabs { overflow-x: auto; flex-wrap: nowrap; }
+  .ws-tab-btn { white-space: nowrap; font-size: 12px; padding: 8px 12px; }
+  .ws-tab-btn span:not([class]) { display: none; }
+  .ws-ctrl-btn span { display: none; }
+  .ws-ctrl-btn { padding: 8px; }
+  .ws-hint { display: none; }
+  .ws-split-wrapper { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+  .webhook-fields-grid { grid-template-columns: 1fr; }
+  .modal-window { max-height: 95vh; }
+}
+</style>
 </head>
 <body class="theme-dark">
-  <div id="app" class="app-container">
-    
-    <!-- ============================================== -->
-    <!-- BARRA LATERAL PRINCIPAL                        -->
-    <!-- ============================================== -->
-    <aside class="sidebar-main">
-      <div class="brand">
-        <div class="brand-logo">
-          <svg viewBox="0 0 24 24" class="logo-icon" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.35 5L2 22l5.12-1.34C8.55 21.52 10.23 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
-          </svg>
-          <div class="logo-pulse"></div>
-        </div>
-        <div class="brand-info">
-          <h2>OmniChat<span>PRO</span></h2>
-          <span class="badge-partner">Meta Certified</span>
-        </div>
+<div class="app-container" id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar-main">
+    <div class="brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24" class="logo-icon" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.35 5L2 22l5.12-1.34C8.55 21.52 10.23 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/>
+        </svg>
+        <div class="logo-pulse"></div>
       </div>
-
-      <nav class="nav-links">
-        <button class="nav-btn active" data-tab="inbox" id="tab-btn-inbox">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </span>
-          <span class="nav-text">Conversas Unificadas</span>
-          <span class="nav-badge" id="total-unread-badge">3</span>
-        </button>
-
-        <button class="nav-btn" data-tab="workspace" id="tab-btn-workspace">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-          </span>
-          <span class="nav-text">Apps Integrados</span>
-          <span class="nav-tag-pill">Web Hub</span>
-        </button>
-
-        <button class="nav-btn" data-tab="channels" id="tab-btn-channels">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-          </span>
-          <span class="nav-text">Canais & Conexões</span>
-          <span class="nav-status-dot online"></span>
-        </button>
-
-        <button class="nav-btn" data-tab="automations" id="tab-btn-automations">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          </span>
-          <span class="nav-text">Automações & Bot</span>
-        </button>
-
-        <button class="nav-btn" data-tab="analytics" id="tab-btn-analytics">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          </span>
-          <span class="nav-text">Métricas & Relatórios</span>
-        </button>
-      </nav>
-
-      <!-- INDICADOR DE STATUS DOS CANAIS -->
-      <div class="sidebar-channels-summary">
-        <div class="summary-title">Canais Ativos</div>
-        <div class="channel-status-pill ch-wa" title="WhatsApp Business Conectado">
-          <span class="pill-dot"></span> WhatsApp
-        </div>
-        <div class="channel-status-pill ch-ig" title="Instagram Direct Conectado">
-          <span class="pill-dot"></span> Instagram
-        </div>
-        <div class="channel-status-pill ch-fb" title="Facebook Messenger Conectado">
-          <span class="pill-dot"></span> Facebook
-        </div>
+      <div class="brand-info">
+        <h2>OmniChat<span>PRO</span></h2>
+        <span class="badge-partner">Meta Certified</span>
       </div>
+    </div>
 
-      <!-- RODAPÉ DA SIDEBAR -->
-      <div class="sidebar-footer">
-        <button id="theme-toggle" class="footer-action-btn" title="Alternar Tema Claro / Escuro">
-          <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        </button>
-        <button id="sound-toggle" class="footer-action-btn active" title="Notificações Sonoras">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        </button>
-        <div class="user-badge" title="Atendente Conectado">
-          <div class="user-avatar-mini">OP</div>
-        </div>
-      </div>
-    </aside>
+    <nav class="nav-links">
+      <button class="nav-btn active" data-tab="inbox" id="tab-btn-inbox">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        <span class="nav-text">Conversas</span>
+        <span class="nav-badge" id="total-unread-badge">0</span>
+      </button>
+      <button class="nav-btn" data-tab="workspace">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></span>
+        <span class="nav-text">Apps</span>
+        <span class="nav-tag-pill">Web</span>
+      </button>
+      <button class="nav-btn" data-tab="channels">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+        <span class="nav-text">Canais</span>
+        <span class="nav-status-dot online"></span>
+      </button>
+      <button class="nav-btn" data-tab="automations">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+        <span class="nav-text">Bot</span>
+      </button>
+      <button class="nav-btn" data-tab="analytics">
+        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        <span class="nav-text">Métricas</span>
+      </button>
+    </nav>
 
-    <!-- ============================================== -->
-    <!-- CONTEÚDO PRINCIPAL                             -->
-    <!-- ============================================== -->
-    <main class="content-main">
-      
-      <!-- ============================================== -->
-      <!-- ABA 1: CAIXA DE ENTRADA UNIFICADA (INBOX)      -->
-      <!-- ============================================== -->
-      <section id="section-inbox" class="tab-section active">
-        <div class="inbox-container">
-          
-          <!-- COLUNA 1: LISTA DE CONVERSAS -->
-          <div class="conversations-column">
-            <div class="column-header">
-              <div class="header-top">
-                <h3>Caixa Unificada</h3>
-                <button class="btn-primary-small" id="btn-simulate-modal" title="Simular nova mensagem recebida">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  <span>Simular Mensagem</span>
-                </button>
-              </div>
+    <div class="sidebar-footer">
+      <button id="theme-toggle" class="footer-action-btn" title="Alternar tema">
+        <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <button id="sound-toggle" class="footer-action-btn active" title="Notificações sonoras">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      </button>
+      <div class="user-badge" title="Atendente"><div class="user-avatar-mini">OP</div></div>
+    </div>
+  </aside>
 
-              <!-- BARRA DE BUSCA -->
-              <div class="search-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="search-input" placeholder="Buscar conversas, nomes ou mensagens...">
-              </div>
+  <!-- MAIN -->
+  <main class="content-main">
 
-              <!-- FILTROS DE CANAL -->
-              <div class="channel-filters">
-                <button class="filter-chip active" data-filter="all">Todos</button>
-                <button class="filter-chip filter-wa" data-filter="whatsapp">
-                  <span class="icon-dot-wa"></span> WhatsApp
-                </button>
-                <button class="filter-chip filter-ig" data-filter="instagram">
-                  <span class="icon-dot-ig"></span> Instagram
-                </button>
-                <button class="filter-chip filter-fb" data-filter="facebook">
-                  <span class="icon-dot-fb"></span> Facebook
-                </button>
-              </div>
+    <!-- INBOX -->
+    <section id="section-inbox" class="tab-section active">
+      <div class="inbox-container" id="inbox-container">
+        <div class="conversations-column" id="conversations-column">
+          <div class="column-header">
+            <div class="header-top">
+              <h3>Caixa Unificada</h3>
+              <button class="btn-primary-small" id="btn-simulate-modal" title="Simular nova mensagem">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Simular</span>
+              </button>
             </div>
-
-            <!-- LISTA SCROLLÁVEL DE CONVERSAS -->
-            <div class="conversations-list" id="conversations-list">
-              <div class="loading-state">
-                <div class="spinner"></div>
-                <p>Carregando conversas integradas...</p>
-              </div>
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="search-input" placeholder="Buscar conversas...">
+            </div>
+            <div class="channel-filters" id="channel-filters">
+              <button class="filter-chip active" data-filter="all">Todos</button>
+              <button class="filter-chip" data-filter="whatsapp"><span class="icon-dot-wa"></span> WhatsApp</button>
+              <button class="filter-chip" data-filter="instagram"><span class="icon-dot-ig"></span> Instagram</button>
+              <button class="filter-chip" data-filter="facebook"><span class="icon-dot-fb"></span> Facebook</button>
             </div>
           </div>
+          <div class="conversations-list" id="conversations-list"></div>
+        </div>
 
-          <!-- COLUNA 2: CHAT ATIVO EM TEMPO REAL -->
-          <div class="chat-column" id="chat-column">
-            <!-- HEADER DO CHAT -->
-            <div class="chat-header" id="chat-header">
-              <div class="contact-header-info">
-                <div class="contact-avatar-wrapper" id="chat-header-avatar-box">
-                  <img id="chat-header-avatar" src="" alt="Avatar">
-                  <span class="channel-badge-mini" id="chat-header-channel-icon"></span>
-                </div>
-                <div class="contact-details">
-                  <h4 id="chat-header-name">Selecione uma conversa</h4>
-                  <div class="contact-subinfo">
-                    <span class="contact-channel-name" id="chat-header-channel-label">Meta Platform</span>
-                    <span class="bullet">•</span>
-                    <span class="contact-identifier" id="chat-header-identifier"></span>
-                  </div>
-                </div>
+        <div class="chat-column" id="chat-column">
+          <div class="chat-header">
+            <div class="contact-header-info">
+              <div class="contact-avatar-wrapper">
+                <img id="chat-header-avatar" src="" alt="Avatar">
+                <span class="channel-badge-mini" id="chat-header-channel-icon"></span>
               </div>
-
-              <div class="chat-header-actions">
-                <button class="btn-icon" id="btn-quick-canned" title="Respostas Rápidas (/atalhos)">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                </button>
-                <button class="btn-icon" id="btn-toggle-info" title="Dados do Cliente / CRM">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                </button>
-                <button class="btn-secondary-small" id="btn-resolve-chat">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span>Resolver</span>
-                </button>
+              <div class="contact-details">
+                <h4 id="chat-header-name">Selecione uma conversa</h4>
+                <div class="contact-subinfo">
+                  <span class="contact-channel-name" id="chat-header-channel-label">—</span>
+                  <span class="bullet">•</span>
+                  <span class="contact-identifier" id="chat-header-identifier"></span>
+                </div>
               </div>
             </div>
-
-            <!-- HISTÓRICO DE MENSAGENS -->
-            <div class="chat-messages" id="chat-messages">
-              <div class="empty-chat-state">
-                <div class="empty-icon-box">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                </div>
-                <h3>OmniChat Central de Atendimento</h3>
-                <p>Selecione um cliente na lista ao lado para responder mensagens do WhatsApp, Instagram ou Facebook em tempo real.</p>
-              </div>
-            </div>
-
-            <!-- SUGESTÃO DE RESPOSTA RÁPIDA (QUANDO DIGITAR /) -->
-            <div class="canned-suggestions-popup" id="canned-suggestions" style="display: none;"></div>
-
-            <!-- BARRA DE ENVIO DE MENSAGENS -->
-            <div class="chat-input-area" id="chat-input-area">
-              <div class="input-actions-left">
-                <button class="btn-icon-input" id="btn-attach" title="Anexar arquivo / imagem">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                </button>
-                <button class="btn-icon-input" id="btn-emoji" title="Inserir emoji">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                </button>
-              </div>
-
-              <div class="input-field-wrapper">
-                <textarea id="message-text-input" placeholder="Digite uma mensagem ou digite / para respostas rápidas..." rows="1"></textarea>
-              </div>
-
-              <button class="btn-send-message" id="btn-send-message" title="Enviar mensagem (Enter)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <div class="chat-header-actions">
+              <button class="btn-icon" id="btn-quick-canned" title="Respostas rápidas">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </button>
+              <button class="btn-icon" id="btn-toggle-info" title="Dados do cliente">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              </button>
+              <button class="btn-secondary-small" id="btn-resolve-chat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Resolver</span>
               </button>
             </div>
           </div>
 
-          <!-- COLUNA 3: CRM & INFORMAÇÕES DO CLIENTE -->
-          <div class="crm-column" id="crm-column">
-            <div class="crm-header">
-              <h4>Dados do Contato</h4>
-              <button class="btn-icon-close" id="btn-close-crm">✕</button>
-            </div>
-            
-            <div class="crm-body" id="crm-body">
-              <div class="crm-profile-card">
-                <img id="crm-avatar" src="" alt="Foto">
-                <h3 id="crm-name">Contato</h3>
-                <span class="crm-handle" id="crm-identifier"></span>
-                <div class="crm-channel-tag" id="crm-channel-tag">WhatsApp</div>
+          <div class="chat-messages" id="chat-messages">
+            <div class="empty-chat-state">
+              <div class="empty-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               </div>
-
-              <div class="crm-field-group">
-                <label>Status do Lead / Etiqueta</label>
-                <select id="crm-tag-select">
-                  <option value="Lead Quente">🔥 Lead Quente</option>
-                  <option value="Cliente VIP">⭐ Cliente VIP</option>
-                  <option value="Suporte">🛠️ Suporte Técnico</option>
-                  <option value="Negócio Fechado">💰 Negócio Fechado</option>
-                  <option value="Em Negociação">🤝 Em Negociação</option>
-                </select>
-              </div>
-
-              <div class="crm-field-group">
-                <label>Notas Internas da Equipe</label>
-                <textarea id="crm-notes-input" placeholder="Adicione anotações sobre este cliente que apenas você e sua equipe verão..."></textarea>
-                <button class="btn-secondary-full" id="btn-save-crm-notes">Salvar Anotação</button>
-              </div>
-
-              <div class="crm-actions-list">
-                <button class="crm-action-btn" id="btn-export-chat">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  Exportar Histórico
-                </button>
-                <button class="crm-action-btn" id="btn-open-in-app">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                  Abrir no App Oficial
-                </button>
-              </div>
+              <h3>OmniChat Central de Atendimento</h3>
+              <p>Selecione um cliente na lista lateral para responder mensagens do WhatsApp, Instagram ou Facebook em tempo real.</p>
             </div>
           </div>
 
-        </div>
-      </section>
+          <div class="canned-suggestions-popup" id="canned-suggestions" style="display:none;"></div>
 
-      <!-- ============================================== -->
-      <!-- ABA 2: WORKSPACE MULTI-APP (USAR OS APPS)     -->
-      <!-- ============================================== -->
-      <section id="section-workspace" class="tab-section">
-        <div class="workspace-container">
-          
-          <div class="workspace-topbar">
-            <div class="workspace-tabs">
-              <button class="ws-tab-btn active" data-app="whatsapp">
-                <span class="ws-icon-wa">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.35 5L2 22l5.12-1.34C8.55 21.52 10.23 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm.05 16.54c-1.54 0-3.03-.43-4.33-1.24l-.31-.19-3.21.84.86-3.13-.2-.32a7.994 7.994 0 0 1 7.19-12.01c4.41 0 8 3.59 8 8 0 4.42-3.59 8.01-8 8.05z"/></svg>
-                </span>
-                <span>WhatsApp Web</span>
+          <div class="chat-input-area">
+            <div class="input-actions-left">
+              <button class="btn-icon-input" id="btn-attach" title="Anexar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
               </button>
-
-              <button class="ws-tab-btn" data-app="instagram">
-                <span class="ws-icon-ig">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                </span>
-                <span>Instagram Direct</span>
-              </button>
-
-              <button class="ws-tab-btn" data-app="messenger">
-                <span class="ws-icon-fb">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.912 1.455 5.512 3.734 7.202V22l3.39-1.86c.91.252 1.878.388 2.876.388 5.523 0 10-4.145 10-9.258C22 6.145 17.523 2 12 2zm1.042 12.457l-2.665-2.844-5.201 2.844 5.72-6.071 2.732 2.844 5.134-2.844-5.72 6.071z"/></svg>
-                </span>
-                <span>Facebook Messenger</span>
-              </button>
-
-              <button class="ws-tab-btn" data-app="business">
-                <span class="ws-icon-meta">
-                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02z"/></svg>
-                </span>
-                <span>Meta Business Suite</span>
-              </button>
-
-              <button class="ws-tab-btn ws-tab-split" data-app="split" id="btn-split-view">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
-                <span>Tela Dividida (Lado a Lado)</span>
+              <button class="btn-icon-input" id="btn-emoji" title="Emoji">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
               </button>
             </div>
+            <div class="input-field-wrapper">
+              <textarea id="message-text-input" placeholder="Digite uma mensagem ou / para respostas rápidas..." rows="1"></textarea>
+            </div>
+            <button class="btn-send-message" id="btn-send-message" title="Enviar (Enter)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
 
-            <div class="workspace-controls">
-              <button class="ws-ctrl-btn" id="btn-ws-open-popup" title="Abrir em Janela Dedicada Flutuante">
+        <div class="crm-column" id="crm-column">
+          <div class="crm-header">
+            <h4>Dados do Contato</h4>
+            <button class="btn-icon-close" id="btn-close-crm">✕</button>
+          </div>
+          <div class="crm-body" id="crm-body">
+            <div class="crm-profile-card">
+              <img id="crm-avatar" src="" alt="Foto">
+              <h3 id="crm-name">—</h3>
+              <span class="crm-handle" id="crm-identifier">—</span>
+              <div class="crm-channel-tag" id="crm-channel-tag">—</div>
+            </div>
+            <div class="crm-field-group">
+              <label>Status do Lead</label>
+              <select id="crm-tag-select">
+                <option value="Lead Quente">🔥 Lead Quente</option>
+                <option value="Cliente VIP">⭐ Cliente VIP</option>
+                <option value="Suporte">🛠️ Suporte Técnico</option>
+                <option value="Negócio Fechado">💰 Negócio Fechado</option>
+                <option value="Em Negociação">🤝 Em Negociação</option>
+              </select>
+            </div>
+            <div class="crm-field-group">
+              <label>Notas Internas</label>
+              <textarea id="crm-notes-input" placeholder="Anotações sobre este cliente..."></textarea>
+              <button class="btn-secondary-full" id="btn-save-crm-notes">Salvar Anotação</button>
+            </div>
+            <div class="crm-actions-list">
+              <button class="crm-action-btn" id="btn-export-chat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Exportar Histórico
+              </button>
+              <button class="crm-action-btn" id="btn-open-in-app">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                <span>Abrir Janela Independente</span>
-              </button>
-              <button class="ws-ctrl-btn" id="btn-ws-reload" title="Recarregar Sessão">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Abrir no App Oficial
               </button>
             </div>
           </div>
-
-          <div class="workspace-viewport" id="workspace-viewport">
-            <!-- MODO INDIVIDUAL -->
-            <div class="ws-app-frame-wrapper" id="ws-single-wrapper">
-              <div class="ws-app-banner">
-                <div class="ws-banner-info">
-                  <span class="ws-banner-dot online"></span>
-                  <strong id="ws-current-app-name">WhatsApp Web</strong> — Sessão conectada e sincronizada
-                </div>
-                <div class="ws-banner-actions">
-                  <span class="ws-hint">Dica: Você pode usar o app completo diretamente aqui ou em janela flutuante lateral!</span>
-                  <button class="btn-primary-mini" id="btn-ws-action-launch">Conectar / Abrir</button>
-                </div>
-              </div>
-
-              <div class="ws-embedded-card" id="ws-embedded-card">
-                <div class="ws-preview-header">
-                  <div class="ws-browser-dots">
-                    <span class="dot red"></span>
-                    <span class="dot yellow"></span>
-                    <span class="dot green"></span>
-                  </div>
-                  <div class="ws-browser-url-bar" id="ws-url-display">https://web.whatsapp.com</div>
-                </div>
-
-                <div class="ws-content-frame" id="ws-content-container"></div>
-              </div>
-            </div>
-
-            <!-- MODO SPLIT-SCREEN (LADO A LADO) -->
-            <div class="ws-split-wrapper" id="ws-split-wrapper" style="display: none;">
-              <div class="ws-split-col">
-                <div class="ws-split-header ch-wa-bg">
-                  <span>🟢 WhatsApp Web</span>
-                  <button class="btn-mini-launch" onclick="launchPopout('whatsapp')">Desacoplar</button>
-                </div>
-                <div class="ws-split-content" id="split-content-left"></div>
-              </div>
-
-              <div class="ws-split-col">
-                <div class="ws-split-header ch-ig-bg">
-                  <span>🟣 Instagram Direct / Messenger</span>
-                  <button class="btn-mini-launch" onclick="launchPopout('instagram')">Desacoplar</button>
-                </div>
-                <div class="ws-split-content" id="split-content-right"></div>
-              </div>
-            </div>
-
-          </div>
-
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- ============================================== -->
-      <!-- ABA 3: CANAIS & CONEXÕES (INTEGRAÇÕES META)    -->
-      <!-- ============================================== -->
-      <section id="section-channels" class="tab-section">
-        <div class="channels-container">
-          <div class="section-title-bar">
-            <div>
-              <h2>Central de Conexões Meta</h2>
-              <p>Gerencie as integrações oficiais do WhatsApp Business Cloud API, Instagram Graph API e Facebook Messenger.</p>
-            </div>
-            <button class="btn-primary" id="btn-sync-all">
+    <!-- WORKSPACE -->
+    <section id="section-workspace" class="tab-section">
+      <div class="workspace-container">
+        <div class="workspace-topbar">
+          <div class="workspace-tabs" id="workspace-tabs">
+            <button class="ws-tab-btn active" data-app="whatsapp">
+              <span class="ws-icon-wa"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.35 5L2 22l5.12-1.34C8.55 21.52 10.23 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm.05 16.54c-1.54 0-3.03-.43-4.33-1.24l-.31-.19-3.21.84.86-3.13-.2-.32a7.994 7.994 0 0 1 7.19-12.01c4.41 0 8 3.59 8 8 0 4.42-3.59 8.01-8 8.05z"/></svg></span>
+              <span>WhatsApp Web</span>
+            </button>
+            <button class="ws-tab-btn" data-app="instagram">
+              <span class="ws-icon-ig"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></span>
+              <span>Instagram</span>
+            </button>
+            <button class="ws-tab-btn" data-app="messenger">
+              <span class="ws-icon-fb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.912 1.455 5.512 3.734 7.202V22l3.39-1.86c.91.252 1.878.388 2.876.388 5.523 0 10-4.145 10-9.258C22 6.145 17.523 2 12 2zm1.042 12.457l-2.665-2.844-5.201 2.844 5.72-6.071 2.732 2.844 5.134-2.844-5.72 6.071z"/></svg></span>
+              <span>Messenger</span>
+            </button>
+            <button class="ws-tab-btn" data-app="business">
+              <span class="ws-icon-meta"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02z"/></svg></span>
+              <span>Business</span>
+            </button>
+            <button class="ws-tab-btn ws-tab-split" data-app="split" id="btn-split-view">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+              <span>Split</span>
+            </button>
+          </div>
+          <div class="workspace-controls">
+            <button class="ws-ctrl-btn" id="btn-ws-reload" title="Recarregar">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              Sincronizar Conexões
             </button>
           </div>
-
-          <div class="channels-cards-grid" id="channels-cards-grid"></div>
-
-          <!-- DETALHES DE WEBHOOK & CREDENCIAIS META -->
-          <div class="meta-credentials-box">
-            <div class="credentials-header">
-              <div class="cred-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <h3>Configuração de Webhook Oficial (Meta for Developers)</h3>
-              </div>
-              <span class="badge-ready">Pronto para Produção</span>
-            </div>
-
-            <p class="cred-desc">
-              Cole estes dados diretamente no seu painel <strong>Meta for Developers (developers.facebook.com)</strong> para receber mensagens do WhatsApp Cloud API, Instagram Direct e Messenger em tempo real com validação SSL:
-            </p>
-
-            <div class="webhook-fields-grid">
-              <div class="field-item">
-                <label>Callback URL (Webhook Endpoint):</label>
-                <div class="copy-input-group">
-                  <input type="text" readonly id="webhook-url-val" value="https://seu-dominio.com/api/webhook">
-                  <button class="btn-copy" onclick="copyToClipboard('webhook-url-val')">Copiar</button>
-                </div>
-              </div>
-
-              <div class="field-item">
-                <label>Token de Verificação (Verify Token):</label>
-                <div class="copy-input-group">
-                  <input type="text" readonly id="webhook-token-val" value="omnichat_token_seguro_2026">
-                  <button class="btn-copy" onclick="copyToClipboard('webhook-token-val')">Copiar</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="webhook-test-bar">
-              <button class="btn-secondary" id="btn-test-webhook-ping">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Testar Conectividade do Webhook
-              </button>
-              <div id="webhook-ping-result" class="ping-result-badge">Latência: 14ms (OK)</div>
-            </div>
-          </div>
         </div>
-      </section>
 
-      <!-- ============================================== -->
-      <!-- ABA 4: AUTOMAÇÕES & RESPOSTAS RÁPIDAS         -->
-      <!-- ============================================== -->
-      <section id="section-automations" class="tab-section">
-        <div class="automations-container">
-          <div class="section-title-bar">
-            <div>
-              <h2>Automação & Chatbot Omnichannel</h2>
-              <p>Configure respostas automáticas de boas-vindas, fora do horário e atalhos rápidos para agilizar o atendimento.</p>
-            </div>
-            <button class="btn-primary" id="btn-add-canned-modal">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Nova Resposta Rápida
-            </button>
-          </div>
-
-          <div class="automations-columns-layout">
-            <div class="automation-card-section">
-              <div class="section-subtitle">
-                <h3>⚡ Respostas Rápidas (Atalhos /)</h3>
-                <span>Envie textos prontos digitando o atalho no chat</span>
+        <div class="workspace-viewport">
+          <div class="ws-app-frame-wrapper" id="ws-single-wrapper">
+            <div class="ws-app-banner">
+              <div class="ws-banner-info">
+                <span class="ws-banner-dot online"></span>
+                <strong id="ws-current-app-name">WhatsApp Web</strong> — Sessão pronta
               </div>
-              <div class="canned-list" id="canned-list"></div>
-            </div>
-
-            <div class="automation-card-section">
-              <div class="section-subtitle">
-                <h3>🤖 Regras do Assistente Automático</h3>
-                <span>Disparadas instantaneamente ao receber novas mensagens</span>
+              <div class="ws-banner-actions">
+                <span class="ws-hint">Dica: use em popup dedicado para melhor experiência</span>
+                <button class="btn-primary-mini" id="btn-ws-action-launch">Abrir Popup</button>
               </div>
-              <div class="rules-list" id="rules-list"></div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ============================================== -->
-      <!-- ABA 5: ANALYTICS & MÉTRICAS                   -->
-      <!-- ============================================== -->
-      <section id="section-analytics" class="tab-section">
-        <div class="analytics-container">
-          <div class="section-title-bar">
-            <div>
-              <h2>Desempenho & Métricas Omnichannel</h2>
-              <p>Volume de atendimentos, distribuição de canais e tempo de resposta em tempo real.</p>
+            <div class="ws-embedded-card">
+              <div class="ws-preview-header">
+                <div class="ws-browser-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+                <div class="ws-browser-url-bar" id="ws-url-display">https://web.whatsapp.com</div>
+              </div>
+              <div class="ws-content-frame" id="ws-content-container"></div>
             </div>
           </div>
 
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <div class="kpi-icon-box kpi-blue">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <div class="ws-split-wrapper" id="ws-split-wrapper" style="display:none;">
+            <div class="ws-split-col">
+              <div class="ws-split-header ch-wa-bg">
+                <span>🟢 WhatsApp Web</span>
+                <button class="btn-mini-launch" data-popout="whatsapp">Desacoplar</button>
               </div>
-              <div class="kpi-info">
-                <span class="kpi-label">Atendimentos Totais</span>
-                <h3 id="kpi-total-convs">0</h3>
-                <span class="kpi-trend positive">↑ +24% este mês</span>
-              </div>
+              <div class="ws-split-content" id="split-content-left"></div>
             </div>
-
-            <div class="kpi-card">
-              <div class="kpi-icon-box kpi-green">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
-              </div>
-              <div class="kpi-info">
-                <span class="kpi-label">Tempo Médio Resposta</span>
-                <h3 id="kpi-avg-time">1.8 min</h3>
-                <span class="kpi-trend positive">⚡ 4x mais rápido</span>
-              </div>
-            </div>
-
-            <div class="kpi-card">
-              <div class="kpi-icon-box kpi-purple">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              </div>
-              <div class="kpi-info">
-                <span class="kpi-label">Taxa de Resolução</span>
-                <h3 id="kpi-satisfaction">98.5%</h3>
-                <span class="kpi-trend positive">⭐ Excelência Meta</span>
-              </div>
-            </div>
-
-            <div class="kpi-card">
-              <div class="kpi-icon-box kpi-amber">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              </div>
-              <div class="kpi-info">
-                <span class="kpi-label">Mensagens Processadas</span>
-                <h3 id="kpi-total-messages">0</h3>
-                <span class="kpi-trend neutral">WhatsApp, Insta & Face</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="analytics-panels-grid">
-            <div class="chart-panel">
-              <h3>Distribuição por Canal de Atendimento</h3>
-              <div class="channel-distribution-bars" id="channel-bars-container"></div>
-            </div>
-
-            <div class="chart-panel">
-              <h3>Status das Conversas</h3>
-              <div class="status-summary-grid">
-                <div class="status-card st-open">
-                  <div class="status-num" id="stat-open-num">0</div>
-                  <div class="status-txt">Em Aberto</div>
-                </div>
-                <div class="status-card st-resolved">
-                  <div class="status-num" id="stat-resolved-num">0</div>
-                  <div class="status-txt">Resolvidos</div>
-                </div>
-              </div>
-              <div class="kpi-tip">
-                💡 <strong>Dica Pro:</strong> Você pode conectar mais de uma conta de WhatsApp ou Instagram simultaneamente na aba <em>Canais & Conexões</em>.
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- ============================================== -->
-    <!-- MODAL: SIMULAR MENSAGEM RECEBIDA               -->
-    <!-- ============================================== -->
-    <div class="modal-overlay" id="modal-simulate">
-      <div class="modal-window">
-        <div class="modal-header">
-          <h3>Simular Mensagem de Cliente</h3>
-          <button class="modal-close-btn" onclick="closeModal('modal-simulate')">✕</button>
-        </div>
-        <div class="modal-body">
-          <p class="modal-helper">Teste a chegada instantânea de mensagens simulando um cliente real enviando mensagem pelo WhatsApp, Instagram Direct ou Facebook Messenger:</p>
-          
-          <div class="form-group">
-            <label>Canal de Origem:</label>
-            <div class="channel-selector-radio">
-              <label class="radio-card ch-wa-selected">
-                <input type="radio" name="sim-channel" value="whatsapp" checked>
-                <span>🟢 WhatsApp</span>
-              </label>
-              <label class="radio-card ch-ig-selected">
-                <input type="radio" name="sim-channel" value="instagram">
+            <div class="ws-split-col">
+              <div class="ws-split-header ch-ig-bg">
                 <span>🟣 Instagram</span>
-              </label>
-              <label class="radio-card ch-fb-selected">
-                <input type="radio" name="sim-channel" value="facebook">
-                <span>🔵 Facebook</span>
-              </label>
+                <button class="btn-mini-launch" data-popout="instagram">Desacoplar</button>
+              </div>
+              <div class="ws-split-content" id="split-content-right"></div>
             </div>
           </div>
-
-          <div class="form-group">
-            <label>Nome do Cliente / Remetente:</label>
-            <input type="text" id="sim-contact-name" value="Guilherme Ferreira" placeholder="Ex: Rodrigo Santos">
-          </div>
-
-          <div class="form-group">
-            <label>Mensagem:</label>
-            <textarea id="sim-message-text" rows="3" placeholder="Digite a mensagem que o cliente enviou...">Olá! Quero tirar uma dúvida sobre a contratação do serviço.</textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" onclick="closeModal('modal-simulate')">Cancelar</button>
-          <button class="btn-primary" id="btn-confirm-simulate">Simular Envio Agora</button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- ============================================== -->
-    <!-- MODAL: NOVA RESPOSTA RÁPIDA                    -->
-    <!-- ============================================== -->
-    <div class="modal-overlay" id="modal-canned">
-      <div class="modal-window">
-        <div class="modal-header">
-          <h3>Nova Resposta Rápida</h3>
-          <button class="modal-close-btn" onclick="closeModal('modal-canned')">✕</button>
+    <!-- CHANNELS -->
+    <section id="section-channels" class="tab-section">
+      <div class="channels-container">
+        <div class="section-title-bar">
+          <div>
+            <h2>Central de Conexões Meta</h2>
+            <p>Gerencie as integrações oficiais do WhatsApp Business Cloud API, Instagram Graph API e Facebook Messenger.</p>
+          </div>
+          <button class="btn-primary" id="btn-sync-all">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Sincronizar
+          </button>
         </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Atalho (Ex: /pix, /precos, /duvida):</label>
-            <input type="text" id="new-cr-shortcut" placeholder="/atalho">
+
+        <div class="channels-cards-grid" id="channels-cards-grid"></div>
+
+        <div class="meta-credentials-box">
+          <div class="credentials-header">
+            <div class="cred-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <h3>Configuração de Webhook Oficial (Meta for Developers)</h3>
+            </div>
+            <span class="badge-ready">Pronto</span>
           </div>
-          <div class="form-group">
-            <label>Título Descritivo:</label>
-            <input type="text" id="new-cr-title" placeholder="Ex: Informações de Pagamento">
+          <p class="cred-desc">
+            Cole estes dados no painel <strong>developers.facebook.com</strong> para receber mensagens do WhatsApp Cloud API, Instagram Direct e Messenger em tempo real:
+          </p>
+          <div class="webhook-fields-grid">
+            <div class="field-item">
+              <label>Callback URL</label>
+              <div class="copy-input-group">
+                <input type="text" readonly id="webhook-url-val" value="https://seu-dominio.com/api/webhook">
+                <button class="btn-copy" data-copy="webhook-url-val">Copiar</button>
+              </div>
+            </div>
+            <div class="field-item">
+              <label>Verify Token</label>
+              <div class="copy-input-group">
+                <input type="text" readonly id="webhook-token-val" value="omnichat_token_seguro_2026">
+                <button class="btn-copy" data-copy="webhook-token-val">Copiar</button>
+              </div>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Texto da Resposta:</label>
-            <textarea id="new-cr-text" rows="4" placeholder="Digite o texto que será colado quando usar o atalho..."></textarea>
+          <div class="webhook-test-bar">
+            <button class="btn-secondary" id="btn-test-webhook-ping">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Testar Conectividade
+            </button>
+            <div id="webhook-ping-result" class="ping-result-badge">Latência: 14ms (OK)</div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" onclick="closeModal('modal-canned')">Cancelar</button>
-          <button class="btn-primary" id="btn-save-new-canned">Salvar Resposta Rápida</button>
         </div>
       </div>
-    </div>
+    </section>
 
+    <!-- AUTOMATIONS -->
+    <section id="section-automations" class="tab-section">
+      <div class="automations-container">
+        <div class="section-title-bar">
+          <div>
+            <h2>Automação & Chatbot Omnichannel</h2>
+            <p>Configure respostas automáticas de boas-vindas, fora do horário e atalhos rápidos.</p>
+          </div>
+          <button class="btn-primary" id="btn-add-canned-modal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nova Resposta
+          </button>
+        </div>
+
+        <div class="automations-columns-layout">
+          <div class="automation-card-section">
+            <div class="section-subtitle">
+              <h3>⚡ Respostas Rápidas (Atalhos /)</h3>
+              <span>Digite o atalho no chat para colar o texto</span>
+            </div>
+            <div class="canned-list" id="canned-list"></div>
+          </div>
+
+          <div class="automation-card-section">
+            <div class="section-subtitle">
+              <h3>🤖 Regras do Assistente Automático</h3>
+              <span>Disparadas automaticamente ao receber mensagens</span>
+            </div>
+            <div class="rules-list" id="rules-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section id="section-analytics" class="tab-section">
+      <div class="analytics-container">
+        <div class="section-title-bar">
+          <div>
+            <h2>Desempenho & Métricas Omnichannel</h2>
+            <p>Volume de atendimentos, distribuição de canais e tempo de resposta em tempo real.</p>
+          </div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon-box kpi-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">Atendimentos Totais</span>
+              <h3 id="kpi-total-convs">0</h3>
+              <span class="kpi-trend positive">↑ +24% este mês</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon-box kpi-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">Tempo Médio Resposta</span>
+              <h3 id="kpi-avg-time">1.8 min</h3>
+              <span class="kpi-trend positive">⚡ 4x mais rápido</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon-box kpi-purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">Taxa de Resolução</span>
+              <h3 id="kpi-satisfaction">98.5%</h3>
+              <span class="kpi-trend positive">⭐ Excelência Meta</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon-box kpi-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-label">Mensagens Processadas</span>
+              <h3 id="kpi-total-messages">0</h3>
+              <span class="kpi-trend neutral">WhatsApp, Insta & Face</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-panels-grid">
+          <div class="chart-panel">
+            <h3>Distribuição por Canal</h3>
+            <div class="channel-distribution-bars" id="channel-bars-container"></div>
+          </div>
+          <div class="chart-panel">
+            <h3>Status das Conversas</h3>
+            <div class="status-summary-grid">
+              <div class="status-card st-open">
+                <div class="status-num" id="stat-open-num">0</div>
+                <div class="status-txt">Em Aberto</div>
+              </div>
+              <div class="status-card st-resolved">
+                <div class="status-num" id="stat-resolved-num">0</div>
+                <div class="status-txt">Resolvidos</div>
+              </div>
+            </div>
+            <div class="kpi-tip">
+              💡 <strong>Dica Pro:</strong> Você pode conectar mais de uma conta na aba <em>Canais & Conexões</em>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- MODAL SIMULATE -->
+<div class="modal-overlay" id="modal-simulate">
+  <div class="modal-window">
+    <div class="modal-header">
+      <h3>Simular Mensagem de Cliente</h3>
+      <button class="modal-close-btn" data-close="modal-simulate">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-helper">Simule uma chegada real de mensagem em qualquer canal:</p>
+      <div class="form-group">
+        <label>Canal de Origem</label>
+        <div class="channel-selector-radio">
+          <label class="radio-card"><input type="radio" name="sim-channel" value="whatsapp" checked><span>🟢 WhatsApp</span></label>
+          <label class="radio-card"><input type="radio" name="sim-channel" value="instagram"><span>🟣 Instagram</span></label>
+          <label class="radio-card"><input type="radio" name="sim-channel" value="facebook"><span>🔵 Facebook</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nome do Cliente</label>
+        <input type="text" id="sim-contact-name" value="Guilherme Ferreira" placeholder="Ex: Rodrigo Santos">
+      </div>
+      <div class="form-group">
+        <label>Mensagem</label>
+        <textarea id="sim-message-text" rows="3" placeholder="Digite a mensagem...">Olá! Quero tirar uma dúvida sobre a contratação do serviço.</textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" data-close="modal-simulate">Cancelar</button>
+      <button class="btn-primary" id="btn-confirm-simulate">Simular Envio</button>
+    </div>
   </div>
+</div>
 
-  <script src="app.js"></script>
+<!-- MODAL CANNED -->
+<div class="modal-overlay" id="modal-canned">
+  <div class="modal-window">
+    <div class="modal-header">
+      <h3>Nova Resposta Rápida</h3>
+      <button class="modal-close-btn" data-close="modal-canned">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Atalho (use barra)</label>
+        <input type="text" id="new-cr-shortcut" placeholder="/pix">
+      </div>
+      <div class="form-group">
+        <label>Título</label>
+        <input type="text" id="new-cr-title" placeholder="Ex: Informações de Pagamento">
+      </div>
+      <div class="form-group">
+        <label>Texto da Resposta</label>
+        <textarea id="new-cr-text" rows="4" placeholder="Digite o texto..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" data-close="modal-canned">Cancelar</button>
+      <button class="btn-primary" id="btn-save-new-canned">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+/* ============================================================
+   OMNICHAT PRO - APP.JS (inline, sem dependências externas)
+============================================================ */
+(function () {
+  'use strict';
+
+  // ---------- ESTADO GLOBAL ----------
+  const state = {
+    currentTab: 'inbox',
+    currentFilter: 'all',
+    searchTerm: '',
+    activeConversationId: null,
+    soundOn: true,
+    theme: localStorage.getItem('omnichat-theme') || 'dark',
+    crmOpen: false,
+    currentApp: 'whatsapp',
+    splitMode: false,
+    channelStats: {
+      whatsapp: { connected: true, messages: 0 },
+      instagram: { connected: true, messages: 0 },
+      facebook: { connected: true, messages: 0 }
+    },
+    canned: [
+      { id: 1, shortcut: '/pix', title: 'Informações de Pagamento', text: 'Nosso PIX é: contato@empresa.com.br (CNPJ 12.345.678/0001-90). Após o envio, por favor mande o comprovante.' },
+      { id: 2, shortcut: '/precos', title: 'Tabela de Preços', text: 'Nossos planos começam em R$ 97/mês (Starter), R$ 197/mês (Pro) e R$ 397/mês (Enterprise). Qual se encaixa melhor?' },
+      { id: 3, shortcut: '/horario', title: 'Horário de Atendimento', text: 'Nosso atendimento funciona de segunda a sexta, das 8h às 18h. Aos sábados até 12h.' },
+      { id: 4, shortcut: '/obrigado', title: 'Agradecimento', text: 'Muito obrigado pelo contato! Qualquer dúvida estamos à disposição. 💚' }
+    ],
+    rules: [
+      { id: 1, icon: '👋', title: 'Boas-vindas automáticas', desc: 'Envia saudação na primeira mensagem', active: true },
+      { id: 2, icon: '🌙', title: 'Fora do horário comercial', desc: 'Responde após 18h e fins de semana', active: true },
+      { id: 3, icon: '🤖', title: 'Menu com opções (1-5)', desc: 'Apresenta menu numerado automaticamente', active: false },
+      { id: 4, icon: '⭐', title: 'Coleta de avaliação', desc: 'Solicita feedback após resolução', active: false }
+    ],
+    conversations: []
+  };
+
+  // ---------- HELPERS ----------
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+  const uid = () => Math.random().toString(36).slice(2, 10);
+  const initials = (name) => name.trim().split(/\s+/).slice(0, 2).map(s => s[0]).join('').toUpperCase();
+  const escapeHTML = (str) => String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+  // Avatar SVG em data URI com iniciais
+  function avatarURI(name, color) {
+    const ini = initials(name || '??');
+    const bg = color || pickColor(name);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="${bg}"/><text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-size="38" font-weight="700" fill="#fff">${ini}</text></svg>`;
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+  }
+  function pickColor(seed) {
+    const palette = ['#25d366','#128c7e','#1877f2','#e1306c','#833ab4','#f59e0b','#ef4444','#06b6d4','#8b5cf6','#ec4899'];
+    let h = 0;
+    for (let i = 0; i < (seed || '').length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+    return palette[h % palette.length];
+  }
+
+  function formatTime(ts) {
+    const d = new Date(ts);
+    return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+  }
+  function relativeTime(ts) {
+    const diff = Date.now() - ts;
+    const min = Math.floor(diff / 60000);
+    if (min < 1) return 'agora';
+    if (min < 60) return min + 'm';
+    const h = Math.floor(min / 60);
+    if (h < 24) return h + 'h';
+    const d = Math.floor(h / 24);
+    return d + 'd';
+  }
+
+  // ---------- TOAST ----------
+  function toast(title, msg, channel, type) {
+    const container = $('#toast-container');
+    const el = document.createElement('div');
+    el.className = 'toast ' + (channel || type || 'success');
+    let iconClass = channel || type || 'success';
+    let iconSymbol = '✓';
+    if (channel === 'whatsapp') iconSymbol = 'W';
+    if (channel === 'instagram') iconSymbol = 'I';
+    if (channel === 'facebook') iconSymbol = 'f';
+    if (type === 'error') iconSymbol = '!';
+    el.innerHTML = `
+      <div class="toast-icon ${iconClass}">${iconSymbol}</div>
+      <div class="toast-content">
+        <div class="toast-title">${escapeHTML(title)}</div>
+        <div class="toast-msg">${escapeHTML(msg)}</div>
+      </div>`;
+    container.appendChild(el);
+    setTimeout(() => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(30px)';
+      el.style.transition = 'all .3s';
+      setTimeout(() => el.remove(), 300);
+    }, 4000);
+  }
+
+  // ---------- SEED DE CONVERSAS ----------
+  function seedConversations() {
+    const now = Date.now();
+    const seed = [
+      { name: 'Ana Beatriz Souza', channel: 'whatsapp', identifier: '+55 11 98765-4321', tag: 'Cliente VIP', unread: 2, preview: 'Perfeito! Vou fechar o plano Pro então.', messages: [
+        { dir: 'in', text: 'Olá, boa tarde! Vi o anúncio de vocês.', ts: now - 3600000 },
+        { dir: 'out', text: 'Boa tarde, Ana! Que bom ter você por aqui. Como posso ajudar?', ts: now - 3500000 },
+        { dir: 'in', text: 'Queria entender a diferença entre o Pro e o Enterprise.', ts: now - 3400000 },
+        { dir: 'out', text: 'Claro! O Pro inclui automações ilimitadas, 5 usuários e integrações com WhatsApp + Instagram. Já o Enterprise adiciona API dedicada, SLA 99,9% e usuários ilimitados.', ts: now - 3300000 },
+        { dir: 'in', text: 'Perfeito! Vou fechar o plano Pro então.', ts: now - 120000, unread: true }
+      ]},
+      { name: 'Carlos Mendes', channel: 'instagram', identifier: '@carlosmendes.oficial', tag: 'Lead Quente', unread: 1, preview: 'Vocês entregam em todo o Brasil?', messages: [
+        { dir: 'in', text: 'Oi! Vi vocês no Instagram, achei o serviço incrível!', ts: now - 7200000 },
+        { dir: 'out', text: 'Que legal, Carlos! Ficamos muito felizes. 😄 Como podemos ajudar?', ts: now - 7100000 },
+        { dir: 'in', text: 'Vocês entregam em todo o Brasil?', ts: now - 300000, unread: true }
+      ]},
+      { name: 'Juliana Paes', channel: 'facebook', identifier: 'fb.com/julianapaes', tag: 'Em Negociação', unread: 0, preview: 'Combinado! Amanhã às 10h conversamos.', messages: [
+        { dir: 'out', text: 'Olá Juliana, tudo bem? Passando para confirmar nossa reunião.', ts: now - 86400000 },
+        { dir: 'in', text: 'Oi! Tudo ótimo. Podemos remarcar para amanhã?', ts: now - 82800000 },
+        { dir: 'out', text: 'Sem problemas! Que tal 10h?', ts: now - 82000000 },
+        { dir: 'in', text: 'Combinado! Amanhã às 10h conversamos.', ts: now - 80000000 }
+      ]},
+      { name: 'Rodrigo Alves', channel: 'whatsapp', identifier: '+55 21 99123-4567', tag: 'Suporte', unread: 3, preview: 'Estou com um problema na integração da API.', messages: [
+        { dir: 'in', text: 'Bom dia! Estou com um problema na integração da API.', ts: now - 1800000, unread: true },
+        { dir: 'in', text: 'O webhook não está recebendo os eventos.', ts: now - 1700000, unread: true },
+        { dir: 'in', text: 'Consegue me ajudar?', ts: now - 1600000, unread: true }
+      ]},
+      { name: 'Fernanda Lima', channel: 'instagram', identifier: '@fer.lima', tag: 'Negócio Fechado', unread: 0, preview: 'Obrigada pela atenção, fechei!', messages: [
+        { dir: 'in', text: 'Adorei o atendimento!', ts: now - 172800000 },
+        { dir: 'out', text: 'Ficamos muito gratos, Fernanda! 💚', ts: now - 172000000 },
+        { dir: 'in', text: 'Obrigada pela atenção, fechei!', ts: now - 171000000 }
+      ]},
+      { name: 'Marcos Vinicius', channel: 'facebook', identifier: 'fb.com/marcos.vinicius', tag: 'Lead Quente', unread: 0, preview: 'Vou analisar e te retorno.', messages: [
+        { dir: 'out', text: 'Segue a proposta comercial conforme conversamos.', ts: now - 259200000 },
+        { dir: 'in', text: 'Vou analisar e te retorno.', ts: now - 258000000 }
+      ]}
+    ];
+
+    state.conversations = seed.map((c, i) => ({
+      id: uid(),
+      name: c.name,
+      channel: c.channel,
+      identifier: c.identifier,
+      tag: c.tag,
+      unread: c.unread || 0,
+      resolved: false,
+      notes: '',
+      avatar: avatarURI(c.name),
+      messages: c.messages.map(m => ({ id: uid(), dir: m.dir, text: m.text, ts: m.ts, unread: !!m.unread, status: 'read' }))
+    }));
+  }
+
+  // ---------- RENDER: CONVERSAS ----------
+  function getFilteredConversations() {
+    const q = state.searchTerm.toLowerCase().trim();
+    return state.conversations.filter(c => {
+      if (state.currentFilter !== 'all' && c.channel !== state.currentFilter) return false;
+      if (!q) return true;
+      if (c.name.toLowerCase().includes(q)) return true;
+      if (c.identifier.toLowerCase().includes(q)) return true;
+      return c.messages.some(m => m.text.toLowerCase().includes(q));
+    }).sort((a, b) => {
+      const la = a.messages[a.messages.length - 1]?.ts || 0;
+      const lb = b.messages[b.messages.length - 1]?.ts || 0;
+      return lb - la;
+    });
+  }
+
+  function renderConversations() {
+    const list = $('#conversations-list');
+    const convs = getFilteredConversations();
+    if (!convs.length) {
+      list.innerHTML = `<div class="loading-state"><p style="font-size:13px;">Nenhuma conversa encontrada</p></div>`;
+      return;
+    }
+    list.innerHTML = convs.map(c => {
+      const lastMsg = c.messages[c.messages.length - 1];
+      const preview = lastMsg ? (lastMsg.dir === 'out' ? '<strong>Você:</strong> ' : '') + escapeHTML(lastMsg.text) : 'Sem mensagens';
+      const chIcon = c.channel === 'whatsapp' ? 'W' : c.channel === 'instagram' ? 'I' : 'f';
+      const active = c.id === state.activeConversationId ? 'active' : '';
+      const unreadBadge = c.unread > 0 ? `<div class="conv-unread">${c.unread}</div>` : '';
+      const tagBadge = c.tag ? `<div class="conv-tag">${escapeHTML(c.tag)}</div>` : '';
+      return `
+        <div class="conv-item ${active}" data-id="${c.id}">
+          <div class="conv-avatar-wrap">
+            <img class="conv-avatar" src="${c.avatar}" alt="${escapeHTML(c.name)}">
+            <span class="conv-channel-badge ${c.channel}">${chIcon}</span>
+          </div>
+          <div class="conv-info">
+            <div class="conv-name-row">
+              <span class="conv-name">${escapeHTML(c.name)}</span>
+            </div>
+            <div class="conv-preview">${preview}</div>
+          </div>
+          <div class="conv-meta">
+            <span class="conv-time">${lastMsg ? relativeTime(lastMsg.ts) : ''}</span>
+            ${unreadBadge}
+            ${tagBadge}
+          </div>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('.conv-item').forEach(el => {
+      el.addEventListener('click', () => selectConversation(el.dataset.id));
+    });
+  }
+
+  // ---------- SELECIONAR CONVERSA ----------
+  function selectConversation(id) {
+    const conv = state.conversations.find(c => c.id === id);
+    if (!conv) return;
+    state.activeConversationId = id;
+    conv.unread = 0;
+    conv.messages.forEach(m => { if (m.dir === 'in') m.unread = false; });
+    updateUnreadBadge();
+    renderConversations();
+    renderChatHeader(conv);
+    renderChatMessages(conv);
+    renderCRM(conv);
+    if (window.innerWidth <= 860) {
+      $('#conversations-column').classList.add('hidden-mobile');
+      $('#chat-column').classList.remove('hidden-mobile');
+    }
+  }
+
+  function renderChatHeader(conv) {
+    $('#chat-header-avatar').src = conv.avatar;
+    $('#chat-header-name').textContent = conv.name;
+    const chLabel = { whatsapp: 'WhatsApp Business', instagram: 'Instagram Direct', facebook: 'Facebook Messenger' }[conv.channel];
+    $('#chat-header-channel-label').textContent = chLabel;
+    $('#chat-header-identifier').textContent = conv.identifier;
+    const badge = $('#chat-header-channel-icon');
+    const chIcon = conv.channel === 'whatsapp' ? 'W' : conv.channel === 'instagram' ? 'I' : 'f';
+    badge.className = 'channel-badge-mini ' + conv.channel;
+    badge.textContent = chIcon;
+  }
+
+  function renderChatMessages(conv) {
+    const wrap = $('#chat-messages');
+    if (!conv.messages.length) {
+      wrap.innerHTML = `<div class="empty-chat-state"><p>Sem mensagens ainda.</p></div>`;
+      return;
+    }
+    wrap.innerHTML = conv.messages.map(m => {
+      const chTag = m.dir === 'in' ? `<span class="msg-channel-tag ${conv.channel}">${conv.channel.slice(0,2)}</span>` : '';
+      const checks = m.dir === 'out' ? `<span class="msg-check">✓✓</span>` : '';
+      return `
+        <div class="msg-row ${m.dir}">
+          <div class="msg-bubble">
+            ${chTag}${escapeHTML(m.text)}
+            <span class="msg-time">${formatTime(m.ts)} ${checks}</span>
+          </div>
+        </div>`;
+    }).join('');
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  function renderCRM(conv) {
+    $('#crm-avatar').src = conv.avatar;
+    $('#crm-name').textContent = conv.name;
+    $('#crm-identifier').textContent = conv.identifier;
+    const tag = $('#crm-channel-tag');
+    tag.className = 'crm-channel-tag ' + conv.channel;
+    tag.textContent = { whatsapp: 'WhatsApp', instagram: 'Instagram', facebook: 'Facebook' }[conv.channel];
+    $('#crm-tag-select').value = conv.tag || 'Lead Quente';
+    $('#crm-notes-input').value = conv.notes || '';
+  }
+
+  // ---------- ENVIAR MENSAGEM ----------
+  function sendMessage() {
+    const input = $('#message-text-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const conv = state.conversations.find(c => c.id === state.activeConversationId);
+    if (!conv) {
+      toast('Atenção', 'Selecione uma conversa primeiro', null, 'error');
+      return;
+    }
+    // Detecta atalho
+    let finalText = text;
+    if (text.startsWith('/')) {
+      const canned = state.canned.find(c => c.shortcut === text.split(' ')[0]);
+      if (canned) finalText = canned.text;
+    }
+    conv.messages.push({ id: uid(), dir: 'out', text: finalText, ts: Date.now(), status: 'sent' });
+    input.value = '';
+    input.style.height = 'auto';
+    renderChatMessages(conv);
+    renderConversations();
+    hideCannedSuggestions();
+    // Som
+    if (state.soundOn) playSendBeep();
+    // Marca como lido após 1.2s
+    const msgRef = conv.messages[conv.messages.length - 1];
+    setTimeout(() => { msgRef.status = 'read'; renderChatMessages(conv); }, 1200);
+  }
+
+  // ---------- AUTO-RESIZE TEXTAREA ----------
+  function autoResizeTA() {
+    const ta = $('#message-text-input');
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+  }
+
+  // ---------- CANNED SUGGESTIONS ----------
+  function showCannedSuggestions(filter) {
+    const popup = $('#canned-suggestions');
+    const items = state.canned.filter(c => c.shortcut.toLowerCase().includes(filter.toLowerCase()) || c.title.toLowerCase().includes(filter.toLowerCase()));
+    if (!items.length) { hideCannedSuggestions(); return; }
+    popup.innerHTML = items.map((c, i) => `
+      <div class="canned-suggestion-item ${i === 0 ? 'highlight' : ''}" data-id="${c.id}">
+        <div class="canned-suggestion-shortcut">${escapeHTML(c.shortcut)}</div>
+        <div class="canned-suggestion-title">${escapeHTML(c.title)}</div>
+        <div class="canned-suggestion-text">${escapeHTML(c.text)}</div>
+      </div>`).join('');
+    popup.style.display = 'block';
+    popup.querySelectorAll('.canned-suggestion-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const c = state.canned.find(x => x.id == el.dataset.id);
+        if (c) {
+          $('#message-text-input').value = c.text;
+          hideCannedSuggestions();
+          $('#message-text-input').focus();
+        }
+      });
+    });
+  }
+  function hideCannedSuggestions() {
+    $('#canned-suggestions').style.display = 'none';
+  }
+
+  // ---------- SOM ----------
+  function playSendBeep() {
+    try {
+      const ctx = window.__audioCtx || (window.__audioCtx = new (window.AudioContext || window.webkitAudioContext)());
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = 720;
+      o.type = 'sine';
+      g.gain.value = 0.04;
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.15);
+      o.stop(ctx.currentTime + 0.16);
+    } catch (e) {}
+  }
+  function playReceiveBeep() {
+    try {
+      const ctx = window.__audioCtx || (window.__audioCtx = new (window.AudioContext || window.webkitAudioContext)());
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = 520;
+      o.type = 'sine';
+      g.gain.value = 0.05;
+      o.start();
+      o.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
+      o.stop(ctx.currentTime + 0.24);
+    } catch (e) {}
+  }
+
+  // ---------- SIMULAR MENSAGEM ----------
+  function simulateIncoming() {
+    const channel = document.querySelector('input[name="sim-channel"]:checked').value;
+    const name = $('#sim-contact-name').value.trim() || 'Cliente Anônimo';
+    const text = $('#sim-message-text').value.trim() || 'Olá!';
+    
+    let conv = state.conversations.find(c => c.name === name && c.channel === channel);
+    if (!conv) {
+      conv = {
+        id: uid(),
+        name: name,
+        channel: channel,
+        identifier: channel === 'whatsapp' ? '+55 11 9' + Math.floor(10000000 + Math.random()*89999999) :
+                    channel === 'instagram' ? '@' + name.toLowerCase().replace(/\s+/g, '.') :
+                    'fb.com/' + name.toLowerCase().replace(/\s+/g, '.'),
+        tag: 'Lead Quente',
+        unread: 0,
+        resolved: false,
+        notes: '',
+        avatar: avatarURI(name),
+        messages: []
+      };
+      state.conversations.unshift(conv);
+    }
+    conv.messages.push({ id: uid(), dir: 'in', text: text, ts: Date.now(), unread: true });
+    if (state.activeConversationId !== conv.id) {
+      conv.unread = (conv.unread || 0) + 1;
+    } else {
+      // se está aberta, marca como lido após pequeno delay
+      setTimeout(() => {
+        conv.messages.forEach(m => m.unread = false);
+        conv.unread = 0;
+        updateUnreadBadge();
+        renderConversations();
+      }, 600);
+    }
+    state.channelStats[channel].messages++;
+    updateUnreadBadge();
+    renderConversations();
+    if (state.activeConversationId === conv.id) renderChatMessages(conv);
+    updateAnalytics();
+    closeModal('modal-simulate');
+    if (state.soundOn) playReceiveBeep();
+    const label = { whatsapp: 'WhatsApp', instagram: 'Instagram', facebook: 'Facebook' }[channel];
+    toast(`Nova mensagem — ${label}`, `${name}: ${text.slice(0, 60)}${text.length > 60 ? '...' : ''}`, channel, 'success');
+  }
+
+  // ---------- BADGE NÃO LIDAS ----------
+  function updateUnreadBadge() {
+    const total = state.conversations.reduce((sum, c) => sum + (c.unread || 0), 0);
+    const badge = $('#total-unread-badge');
+    badge.textContent = total;
+    badge.style.display = total > 0 ? 'flex' : 'none';
+  }
+
+  // ---------- MODAIS ----------
+  function openModal(id) { $('#' + id).classList.add('active'); }
+  function closeModal(id) { $('#' + id).classList.remove('active'); }
+
+  // ---------- CANNED UI ----------
+  function renderCanned() {
+    const list = $('#canned-list');
+    if (!state.canned.length) {
+      list.innerHTML = `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">Nenhuma resposta cadastrada</div>`;
+      return;
+    }
+    list.innerHTML = state.canned.map(c => `
+      <div class="canned-item" data-id="${c.id}">
+        <span class="canned-shortcut">${escapeHTML(c.shortcut)}</span>
+        <div class="canned-content">
+          <div class="canned-title">${escapeHTML(c.title)}</div>
+          <div class="canned-text">${escapeHTML(c.text)}</div>
+        </div>
+        <button class="canned-delete" data-del="${c.id}" title="Excluir">×</button>
+      </div>`).join('');
+    list.querySelectorAll('.canned-delete').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.canned = state.canned.filter(x => x.id != btn.dataset.del);
+        renderCanned();
+        toast('Removida', 'Resposta rápida excluída', null, 'success');
+      });
+    });
+  }
+
+  function renderRules() {
+    const list = $('#rules-list');
+    list.innerHTML = state.rules.map(r => `
+      <div class="rule-item">
+        <div class="rule-icon" style="font-size:18px;">${r.icon}</div>
+        <div class="rule-content">
+          <div class="rule-title">${escapeHTML(r.title)}</div>
+          <div class="rule-desc">${escapeHTML(r.desc)}</div>
+        </div>
+        <div class="toggle-switch ${r.active ? 'active' : ''}" data-rule="${r.id}"></div>
+      </div>`).join('');
+    list.querySelectorAll('.toggle-switch').forEach(el => {
+      el.addEventListener('click', () => {
+        const r = state.rules.find(x => x.id == el.dataset.rule);
+        r.active = !r.active;
+        el.classList.toggle('active', r.active);
+        toast(r.active ? 'Ativada' : 'Desativada', r.title, null, 'success');
+      });
+    });
+  }
+
+  // ---------- CHANNELS ----------
+  function renderChannels() {
+    const grid = $('#channels-cards-grid');
+    const cards = [
+      { key: 'whatsapp', name: 'WhatsApp Business', desc: 'Cloud API oficial da Meta com envio de mensagens, mídias e templates aprovados.', icon: 'M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.35 5L2 22l5.12-1.34C8.55 21.52 10.23 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm.05 16.54c-1.54 0-3.03-.43-4.33-1.24l-.31-.19-3.21.84.86-3.13-.2-.32a7.994 7.994 0 0 1 7.19-12.01c4.41 0 8 3.59 8 8 0 4.42-3.59 8.01-8 8.05z' },
+      { key: 'instagram', name: 'Instagram Direct', desc: 'Graph API para DMs, menções e comentários. Suporta mídias e stories replies.', icon: 'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z' },
+      { key: 'facebook', name: 'Facebook Messenger', desc: 'Messenger Platform oficial para páginas. Chatbots, menu persistente e webhooks.', icon: 'M12 2C6.477 2 2 6.145 2 11.258c0 2.912 1.455 5.512 3.734 7.202V22l3.39-1.86c.91.252 1.878.388 2.876.388 5.523 0 10-4.145 10-9.258C22 6.145 17.523 2 12 2zm1.042 12.457l-2.665-2.844-5.201 2.844 5.72-6.071 2.732 2.844 5.134-2.844-5.72 6.071z' },
+      { key: 'business', name: 'Meta Business Suite', desc: 'Painel unificado para gerenciar páginas, contas de anúncio e WhatsApp Business.', icon: 'M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02z' }
+    ];
+    grid.innerHTML = cards.map(c => {
+      const conn = state.channelStats[c.key]?.connected ?? true;
+      const msgs = state.channelStats[c.key]?.messages ?? 0;
+      return `
+        <div class="channel-card ${c.key}">
+          <div class="channel-card-header">
+            <div class="channel-card-icon"><svg viewBox="0 0 24 24" fill="currentColor">${'<path d="' + (c.icon.match(/^[A-Za-z0-9 .\-+,/]+/) ? c.icon : c.icon) + '"/>'}</svg></div>
+            <span class="channel-status-badge ${conn ? 'connected' : 'disconnected'}">
+              <span class="status-dot-mini"></span>
+              ${conn ? 'Conectado' : 'Desconectado'}
+            </span>
+          </div>
+          <h3>${c.name}</h3>
+          <p class="channel-card-desc">${c.desc}</p>
+          <div class="channel-card-metrics">
+            <div class="channel-metric">
+              <div class="channel-metric-label">Mensagens</div>
+              <div class="channel-metric-value">${msgs}</div>
+            </div>
+            <div class="channel-metric">
+              <div class="channel-metric-label">Uptime</div>
+              <div class="channel-metric-value">99.9%</div>
+            </div>
+          </div>
+          <div class="channel-card-actions">
+            <button class="btn-connect" data-connect="${c.key}">${conn ? 'Gerenciar' : 'Conectar'}</button>
+            <button class="btn-disconnect" data-disconnect="${c.key}">Desconectar</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    grid.querySelectorAll('[data-connect]').forEach(b => b.addEventListener('click', () => {
+      toast('Conexão', 'Redirecionando para o painel Meta for Developers...', null, 'success');
+      setTimeout(() => window.open('https://developers.facebook.com/apps/', '_blank'), 500);
+    }));
+    grid.querySelectorAll('[data-disconnect]').forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.disconnect;
+      state.channelStats[k].connected = false;
+      renderChannels();
+      toast('Desconectado', 'Canal foi desconectado com sucesso.', null, 'success');
+    }));
+  }
+
+  // ---------- WORKSPACE ----------
+  const APPS_INFO = {
+    whatsapp: { name: 'WhatsApp Web', url: 'https://web.whatsapp.com', icon: 'whatsapp', desc: 'Conecte-se escaneando o QR Code com seu celular. Suas conversas ficarão sincronizadas automaticamente.' },
+    instagram: { name: 'Instagram Direct', url: 'https://www.instagram.com/direct/inbox/', icon: 'instagram', desc: 'Acesse as mensagens diretas do Instagram. Faça login na sua conta para gerenciar DMs em tempo real.' },
+    messenger: { name: 'Facebook Messenger', url: 'https://www.messenger.com', icon: 'messenger', desc: 'Gerencie as mensagens do Facebook Messenger. Login com sua conta Facebook necessária.' },
+    business: { name: 'Meta Business Suite', url: 'https://business.facebook.com', icon: 'business', desc: 'Painel unificado da Meta para gerenciar páginas, anúncios e mensagens de todos os canais.' }
+  };
+
+  function renderWorkspace() {
+    const info = APPS_INFO[state.currentApp];
+    if (!info) return;
+    $('#ws-current-app-name').textContent = info.name;
+    $('#ws-url-display').textContent = info.url;
+    const container = $('#ws-content-container');
+    const iconSVG = {
+      whatsapp: '<path d="M12 2C6.48 2 2 6.48 2 12c0 1.82.49 3.53 1.35 5L2 22l5.12-1.34C8.55 21.52 10.23 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm.05 16.54c-1.54 0-3.03-.43-4.33-1.24l-.31-.19-3.21.84.86-3.13-.2-.32a7.994 7.994 0 0 1 7.19-12.01c4.41 0 8 3.59 8 8 0 4.42-3.59 8.01-8 8.05z"/>',
+      instagram: '<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>',
+      messenger: '<path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.912 1.455 5.512 3.734 7.202V22l3.39-1.86c.91.252 1.878.388 2.876.388 5.523 0 10-4.145 10-9.258C22 6.145 17.523 2 12 2zm1.042 12.457l-2.665-2.844-5.201 2.844 5.72-6.071 2.732 2.844 5.134-2.844-5.72 6.071z"/>',
+      business: '<path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02z"/>'
+    }[info.icon];
+    
+    container.innerHTML = `
+      <div class="ws-launch-card">
+        <div class="ws-launch-icon ${info.icon}">
+          <svg viewBox="0 0 24 24" fill="currentColor">${iconSVG}</svg>
+        </div>
+        <h3>${info.name}</h3>
+        <p>${info.desc}</p>
+        <div class="ws-launch-actions">
+          <button class="btn-launch-primary" id="btn-launch-app">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Abrir em Nova Aba
+          </button>
+        </div>
+        <div class="ws-note">
+          <strong>⚠️ Nota técnica:</strong> WhatsApp Web, Instagram e Messenger <strong>bloqueiam embed em iframe</strong> por segurança (headers <code>X-Frame-Options: DENY</code>). Por isso abrimos em uma nova aba/popup — você pode redimensionar e fixar ao lado desta janela para uma experiência integrada.
+        </div>
+      </div>`;
+    $('#btn-launch-app').addEventListener('click', () => launchApp(state.currentApp));
+    $('#ws-single-wrapper').style.display = 'flex';
+    $('#ws-split-wrapper').style.display = 'none';
+    state.splitMode = false;
+  }
+
+  function launchApp(app) {
+    const info = APPS_INFO[app];
+    if (!info) return;
+    const w = 480, h = 820;
+    const left = window.screen.availWidth - w - 20;
+    const top = 40;
+    const popup = window.open(info.url, 'omnichat_' + app, `width=${w},height=${h},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes`);
+    if (!popup) {
+      toast('Popup bloqueado', 'Permita popups neste site e tente novamente.', null, 'error');
+      return;
+    }
+    toast('Abrindo ' + info.name, 'Sessão iniciada em janela dedicada', null, 'success');
+  }
+
+  function renderSplitMode() {
+    $('#ws-single-wrapper').style.display = 'none';
+    $('#ws-split-wrapper').style.display = 'grid';
+    state.splitMode = true;
+    const apps = ['whatsapp', 'instagram'];
+    const containers = ['#split-content-left', '#split-content-right'];
+    apps.forEach((app, i) => {
+      const info = APPS_INFO[app];
+      const chName = app === 'whatsapp' ? '🟢 WhatsApp Web' : '🟣 Instagram Direct';
+      $(containers[i]).innerHTML = `
+        <div style="text-align:center; max-width:280px;">
+          <div style="font-size:48px; margin-bottom:12px;">${app === 'whatsapp' ? '💬' : '📸'}</div>
+          <h4 style="margin-bottom:8px; color: var(--text-primary); font-size:15px;">${info.name}</h4>
+          <p style="font-size:12.5px; line-height:1.5; margin-bottom:16px;">${info.desc}</p>
+          <button class="btn-launch-primary" data-launch="${app}">Abrir Sessão</button>
+        </div>`;
+    });
+    $('#ws-split-wrapper').querySelectorAll('[data-launch]').forEach(b => b.addEventListener('click', () => launchApp(b.dataset.launch)));
+  }
+
+  // ---------- ANALYTICS ----------
+  function updateAnalytics() {
+    const convs = state.conversations;
+    const totalConvs = convs.length;
+    const totalMsgs = convs.reduce((s, c) => s + c.messages.length, 0);
+    const open = convs.filter(c => !c.resolved).length;
+    const resolved = convs.filter(c => c.resolved).length;
+
+    $('#kpi-total-convs').textContent = totalConvs;
+    $('#kpi-total-messages').textContent = totalMsgs;
+    $('#stat-open-num').textContent = open;
+    $('#stat-resolved-num').textContent = resolved;
+
+    // Distribuição por canal
+    const chCounts = { whatsapp: 0, instagram: 0, facebook: 0 };
+    convs.forEach(c => { chCounts[c.channel] = (chCounts[c.channel] || 0) + 1; });
+    const max = Math.max(...Object.values(chCounts), 1);
+    const barsHTML = [
+      { key: 'whatsapp', label: 'WhatsApp', color: 'whatsapp' },
+      { key: 'instagram', label: 'Instagram', color: 'instagram' },
+      { key: 'facebook', label: 'Facebook', color: 'facebook' }
+    ].map(b => {
+      const count = chCounts[b.key] || 0;
+      const pct = Math.round((count / totalConvs) * 100) || 0;
+      const widthPct = (count / max) * 100;
+      return `
+        <div class="dist-bar-row">
+          <div class="dist-bar-label">
+            <span class="icon-dot" style="background: ${{whatsapp:'#25d366',instagram:'#e1306c',facebook:'#1877f2'}[b.key]}"></span>
+            ${b.label}
+          </div>
+          <div class="dist-bar-track">
+            <div class="dist-bar-fill ${b.color}" style="width: ${widthPct}%"></div>
+          </div>
+          <div class="dist-bar-value">${count}</div>
+        </div>`;
+    }).join('');
+    $('#channel-bars-container').innerHTML = barsHTML;
+  }
+
+  // ---------- TEMA ----------
+  function applyTheme() {
+    document.body.classList.toggle('theme-light', state.theme === 'light');
+    document.body.classList.toggle('theme-dark', state.theme === 'dark');
+  }
+
+  // ---------- TROCA DE ABAS ----------
+  function switchTab(tab) {
+    state.currentTab = tab;
+    $$('.tab-section').forEach(s => s.classList.remove('active'));
+    const sec = $('#section-' + tab);
+    if (sec) sec.classList.add('active');
+    $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    if (tab === 'analytics') updateAnalytics();
+    if (tab === 'channels') renderChannels();
+    if (tab === 'automations') { renderCanned(); renderRules(); }
+    if (tab === 'workspace') renderWorkspace();
+  }
+
+  // ---------- FILTROS ----------
+  function initFilters() {
+    $$('#channel-filters .filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        $$('#channel-filters .filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        state.currentFilter = chip.dataset.filter;
+        renderConversations();
+      });
+    });
+  }
+
+  // ---------- COPY TO CLIPBOARD ----------
+  function copyToClipboard(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.select();
+    el.setSelectionRange(0, 99999);
+    try {
+      navigator.clipboard.writeText(el.value);
+      toast('Copiado!', 'Valor copiado para a área de transferência', null, 'success');
+    } catch (e) {
+      document.execCommand('copy');
+      toast('Copiado!', 'Valor copiado', null, 'success');
+    }
+  }
+
+  // ---------- EVENT LISTENERS ----------
+  function attachEvents() {
+    // Navegação
+    $$('.nav-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+    // Tema
+    $('#theme-toggle').addEventListener('click', () => {
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('omnichat-theme', state.theme);
+      applyTheme();
+    });
+
+    // Som
+    $('#sound-toggle').addEventListener('click', () => {
+      state.soundOn = !state.soundOn;
+      $('#sound-toggle').classList.toggle('active', state.soundOn);
+      toast(state.soundOn ? 'Som ativado' : 'Som desativado', 'Notificações sonoras ' + (state.soundOn ? 'ligadas' : 'desligadas'), null, 'success');
+    });
+
+    // Busca
+    $('#search-input').addEventListener('input', (e) => {
+      state.searchTerm = e.target.value;
+      renderConversations();
+    });
+
+    // Simular
+    $('#btn-simulate-modal').addEventListener('click', () => openModal('modal-simulate'));
+    $('#btn-confirm-simulate').addEventListener('click', simulateIncoming);
+
+    // Canned
+    $('#btn-add-canned-modal').addEventListener('click', () => openModal('modal-canned'));
+    $('#btn-save-new-canned').addEventListener('click', () => {
+      const shortcut = $('#new-cr-shortcut').value.trim();
+      const title = $('#new-cr-title').value.trim();
+      const text = $('#new-cr-text').value.trim();
+      if (!shortcut || !title || !text) {
+        toast('Campos obrigatórios', 'Preencha atalho, título e texto.', null, 'error');
+        return;
+      }
+      if (!shortcut.startsWith('/')) {
+        toast('Formato inválido', 'O atalho deve começar com /', null, 'error');
+        return;
+      }
+      state.canned.push({ id: Date.now(), shortcut, title, text });
+      renderCanned();
+      closeModal('modal-canned');
+      $('#new-cr-shortcut').value = '';
+      $('#new-cr-title').value = '';
+      $('#new-cr-text').value = '';
+      toast('Salva!', 'Resposta rápida criada com sucesso', null, 'success');
+    });
+
+    // Enviar mensagem
+    $('#btn-send-message').addEventListener('click', sendMessage);
+    const msgInput = $('#message-text-input');
+    msgInput.addEventListener('input', () => {
+      autoResizeTA();
+      const val = msgInput.value;
+      if (val.startsWith('/')) showCannedSuggestions(val.split(' ')[0]);
+      else hideCannedSuggestions();
+    });
+    msgInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if ($('#canned-suggestions').style.display === 'block') {
+          const first = $('#canned-suggestions .canned-suggestion-item');
+          if (first) { first.click(); return; }
+        }
+        sendMessage();
+      }
+      if (e.key === 'Escape') hideCannedSuggestions();
+    });
+
+    // Anexo / emoji
+    $('#btn-attach').addEventListener('click', () => toast('Anexo', 'Funcionalidade disponível na versão desktop', null, 'success'));
+    $('#btn-emoji').addEventListener('click', () => {
+      msgInput.value += ' 😊';
+      autoResizeTA();
+      msgInput.focus();
+    });
+    $('#btn-quick-canned').addEventListener('click', () => {
+      msgInput.value = '/';
+      msgInput.focus();
+      showCannedSuggestions('/');
+    });
+
+    // CRM toggle
+    $('#btn-toggle-info').addEventListener('click', () => {
+      const ic = $('#inbox-container');
+      ic.classList.toggle('crm-open');
+      state.crmOpen = ic.classList.contains('crm-open');
+    });
+    $('#btn-close-crm').addEventListener('click', () => {
+      $('#inbox-container').classList.remove('crm-open');
+      state.crmOpen = false;
+    });
+
+    // CRM tag
+    $('#crm-tag-select').addEventListener('change', (e) => {
+      const conv = state.conversations.find(c => c.id === state.activeConversationId);
+      if (!conv) return;
+      conv.tag = e.target.value;
+      renderConversations();
+      toast('Etiqueta atualizada', conv.tag, null, 'success');
+    });
+
+    // CRM notas
+    $('#btn-save-crm-notes').addEventListener('click', () => {
+      const conv = state.conversations.find(c => c.id === state.activeConversationId);
+      if (!conv) return;
+      conv.notes = $('#crm-notes-input').value;
+      toast('Nota salva', 'Anotação registrada no CRM', null, 'success');
+    });
+
+    // Resolver
+    $('#btn-resolve-chat').addEventListener('click', () => {
+      const conv = state.conversations.find(c => c.id === state.activeConversationId);
+      if (!conv) { toast('Atenção', 'Selecione uma conversa', null, 'error'); return; }
+      conv.resolved = !conv.resolved;
+      toast(conv.resolved ? 'Conversa resolvida' : 'Reaberta', conv.name, null, 'success');
+      updateAnalytics();
+    });
+
+    // Export
+    $('#btn-export-chat').addEventListener('click', () => {
+      const conv = state.conversations.find(c => c.id === state.activeConversationId);
+      if (!conv) return;
+      const lines = conv.messages.map(m => `[${new Date(m.ts).toLocaleString('pt-BR')}] ${m.dir === 'in' ? conv.name : 'Você'}: ${m.text}`);
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `chat_${conv.name.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast('Exportado', 'Histórico salvo como .txt', null, 'success');
+    });
+
+    // Abrir app oficial
+    $('#btn-open-in-app').addEventListener('click', () => {
+      const conv = state.conversations.find(c => c.id === state.activeConversationId);
+      if (!conv) return;
+      const url = { whatsapp: 'https://web.whatsapp.com', instagram: 'https://www.instagram.com/direct/inbox/', facebook: 'https://www.messenger.com' }[conv.channel];
+      window.open(url, '_blank');
+    });
+
+    // Modais — fechar
+    $$('[data-close]').forEach(b => b.addEventListener('click', () => closeModal(b.dataset.close)));
+    $$('.modal-overlay').forEach(m => m.addEventListener('click', (e) => {
+      if (e.target === m) m.classList.remove('active');
+    }));
+
+    // Workspace — abas
+    $$('.ws-tab-btn').forEach(b => b.addEventListener('click', () => {
+      if (b.dataset.app === 'split') { renderSplitMode(); return; }
+      state.currentApp = b.dataset.app;
+      $$('.ws-tab-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      renderWorkspace();
+    }));
+
+    // Workspace — reload
+    $('#btn-ws-reload').addEventListener('click', () => {
+      renderWorkspace();
+      toast('Sessão recarregada', 'Workspace reiniciado', null, 'success');
+    });
+
+    // Workspace — launch popup
+    $('#btn-ws-action-launch').addEventListener('click', () => launchApp(state.currentApp));
+
+    // Popout split
+    document.addEventListener('click', (e) => {
+      if (e.target.dataset && e.target.dataset.popout) {
+        launchApp(e.target.dataset.popout);
+      }
+      if (e.target.dataset && e.target.dataset.copy) {
+        copyToClipboard(e.target.dataset.copy);
+      }
+    });
+
+    // Sync all
+    $('#btn-sync-all').addEventListener('click', () => {
+      toast('Sincronizando...', 'Conectando com os servidores Meta', null, 'success');
+      setTimeout(() => {
+        Object.keys(state.channelStats).forEach(k => state.channelStats[k].connected = true);
+        renderChannels();
+        toast('Sincronizado!', 'Todos os canais estão ativos', null, 'success');
+      }, 1200);
+    });
+
+    // Webhook test
+    $('#btn-test-webhook-ping').addEventListener('click', () => {
+      const el = $('#webhook-ping-result');
+      el.textContent = 'Testando...';
+      setTimeout(() => {
+        const ms = Math.floor(Math.random() * 30) + 8;
+        el.textContent = `Latência: ${ms}ms (OK)`;
+        toast('Webhook OK', `Endpoint respondeu em ${ms}ms`, null, 'success');
+      }, 900);
+    });
+
+    // Atalhos globais
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        $('#search-input').focus();
+        switchTab('inbox');
+      }
+      if (e.key === 'Escape') {
+        $$('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+      }
+    });
+
+    // Responsivo mobile — voltar
+    if (window.innerWidth <= 860) {
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.conv-item')) return;
+      });
+    }
+  }
+
+  // ---------- INIT ----------
+  function init() {
+    applyTheme();
+    seedConversations();
+    renderConversations();
+    updateUnreadBadge();
+    renderCanned();
+    renderRules();
+    renderChannels();
+    updateAnalytics();
+    attachEvents();
+    initFilters();
+    renderWorkspace();
+    
+    // Auto-seleciona primeira conversa após 400ms
+    setTimeout(() => {
+      const first = getFilteredConversations()[0];
+      if (first) selectConversation(first.id);
+    }, 400);
+
+    // Simulação automática de mensagem a cada 45s (para demo)
+    let simToggle = 0;
+    setInterval(() => {
+      if (document.hidden) return;
+      const samples = [
+        { name: 'Larissa Costa', channel: 'whatsapp', text: 'Oi, vocês têm desconto para pagamento anual?' },
+        { name: 'Bruno Rocha', channel: 'instagram', text: 'Vi o story de vocês! Como funciona?' },
+        { name: 'Patrícia Nunes', channel: 'facebook', text: 'Boa tarde, gostaria de um orçamento.' }
+      ];
+      const s = samples[simToggle % samples.length];
+      simToggle++;
+      
+      let conv = state.conversations.find(c => c.name === s.name);
+      if (!conv) {
+        conv = {
+          id: uid(), name: s.name, channel: s.channel,
+          identifier: s.channel === 'whatsapp' ? '+55 11 9' + Math.floor(10000000 + Math.random()*89999999) :
+                      s.channel === 'instagram' ? '@' + s.name.toLowerCase().replace(/\s+/g, '.') :
+                      'fb.com/' + s.name.toLowerCase().replace(/\s+/g, '.'),
+          tag: 'Lead Quente', unread: 0, resolved: false, notes: '',
+          avatar: avatarURI(s.name), messages: []
+        };
+        state.conversations.unshift(conv);
+      }
+      conv.messages.push({ id: uid(), dir: 'in', text: s.text, ts: Date.now(), unread: true });
+      if (state.activeConversationId !== conv.id) conv.unread = (conv.unread || 0) + 1;
+      state.channelStats[s.channel].messages++;
+      updateUnreadBadge();
+      renderConversations();
+      if (state.activeConversationId === conv.id) renderChatMessages(conv);
+      updateAnalytics();
+      if (state.soundOn) playReceiveBeep();
+      const label = { whatsapp: 'WhatsApp', instagram: 'Instagram', facebook: 'Facebook' }[s.channel];
+      toast(`Nova mensagem — ${label}`, `${s.name}: ${s.text.slice(0, 55)}...`, s.channel, 'success');
+    }, 45000);
+
+    console.log('%c🚀 OmniChat Pro', 'background:#00a884;color:#0b141a;padding:4px 10px;border-radius:4px;font-weight:700;', 'carregado com sucesso.');
+  }
+
+  // Start
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
 </body>
 </html>
